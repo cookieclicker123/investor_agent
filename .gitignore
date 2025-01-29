@@ -1,0 +1,4 @@
+.venv
+tmp
+tests/fixtures
+__pycache__
