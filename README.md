@@ -8,7 +8,6 @@
 4. [Development Roadmap](#development-roadmap)
 5. [Setup](#setup)
 
-[Rest of README content follows...]
 
 ## Project Vision: Goals + Purpose
 
