@@ -8,13 +8,13 @@ def create_intent_detector() -> intentFn:
         """Detect which intent should handle the query and return an IntentResult."""
         text = text.lower()
         
-        # Simple rule-based intent detection for our specific queries
-        if text == "what are options":
-            intent = [Intent.PDF_AGENT]
-        elif text == "what impact is deepseek ai's new set of models having on the us stock market this week?":
-            intent = [Intent.WEB_AGENT]
-        elif text == "tell me the performance metrics of pltr in the stock market this week":
+        # Rule-based intent detection for financial queries
+        if '(aapl)' in text or 'pltr' in text or any(f'({ticker})' in text for ticker in ['msft', 'googl', 'tsla']):
             intent = [Intent.FINANCE_AGENT]
+        elif 'options' in text or 'trading' in text or 'investment' in text:
+            intent = [Intent.PDF_AGENT]
+        elif 'market' in text or 'news' in text or "what's happening" in text:
+            intent = [Intent.WEB_AGENT]
         else:
             intent = []
         
