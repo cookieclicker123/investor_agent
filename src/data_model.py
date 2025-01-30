@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from enum import Enum
-from typing import Dict, List, Any, Callable
+from typing import Dict, List, Any, Callable, Union
 from datetime import datetime
 
 class Intent(str, Enum):
@@ -23,8 +23,8 @@ class IntentResult(BaseModel):
 
 class LLMRequest(BaseModel):
     query: str
-    prompt: str
-    as_json: bool
+    prompt: Union[str, Dict[str, str]]
+    as_json: bool = False
 
 class LLMResponse(BaseModel):
     generated_at: str
@@ -38,4 +38,4 @@ class LLMResponse(BaseModel):
 OnTextFn = Callable[[str], None]
 
 intentFn = Callable[[str], IntentResult]
-llmFn = Callable[[str, OnTextFn], LLMResponse]
+llmFn = Callable[[LLMRequest, OnTextFn], LLMResponse]
