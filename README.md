@@ -1,7 +1,5 @@
 # Investor Agent
 
-## project Vision: Goals + purpose
-
 ## Project Vision: Goals + Purpose
 
 I want to orchestrate multiple agents into a **financial expert system**, that can answer all your queries regarding investing, whether you are looking for price metrics on a particular company, trends this week in the stock market, or timeless investing knowledge, you should be able to seamlessly hunt for these things in a pleasant natural language user interface that takes you from vague natural language to **cited, high detail answers** immediately in one place. I will be adding agents and features over time but the primary system is comprised of **finance, web and pdf index agents**, along with some intelligent use of LLMs to decipher user intent. LLMs are already great, and there's many amazing external APIs or ways to index information as tools, but My primary goal is to take natural language, and easily decipher **user intent**, as selecting the correct agent is paramount in AI and a large reason why agents haven't been able to scale until now. The whole idea is this will be your **PA for investing**, from the educational domain, all the way to automating your workflow at the financial advisory firm.
@@ -54,9 +52,6 @@ This project will use **cutting edge LLMs** and **bespoke agent orchestration** 
    - Minimal code duplication
    - Clear dependency flows
    - Easy to modify and extend
-
-
-## Repo structure
 
 ## Repo Structure
 
@@ -124,8 +119,6 @@ This structure:
 - Follows Python best practices
 
 ## Development roadmap
-
-## Development Roadmap
 
 1. **Foundation Layer** ✓
    - Implement core data models using Pydantic
