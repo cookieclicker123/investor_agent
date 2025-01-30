@@ -7,6 +7,8 @@
 3. [Repo Structure](#repo-structure)
 4. [Development Roadmap](#development-roadmap)
 5. [Setup](#setup)
+6. [Run pytests to confirm each component works](#run-pytests-to-confirm-each-component-works)
+7. [Run the app.py script to test the LLM without the UI, or the mock LLM](#run-the-apppy-script-to-test-the-llm-without-the-ui-or-the-mock-llm)
 
 
 ## Project Vision: Goals + Purpose
@@ -225,6 +227,8 @@ python3.11 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 ```
+
+Refer to the **examples folder first** to see how to use the LLM pipeline, data model, and intent extraction, without all the moving parts of the real llms, agents, tools, and frontend
 
 ## Run pytests to confirm each component works
 
