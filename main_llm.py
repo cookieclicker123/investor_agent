@@ -33,15 +33,34 @@ async def main():
     
     # Load existing conversation history or create new one
     history_file = "tmp/conversation_log.json"
-    if os.path.exists(history_file):
-        with open(history_file, 'r') as f:
-            conversation_history = json.load(f)
-    else:
+    try:
+        if os.path.exists(history_file):
+            with open(history_file, 'r') as f:
+                conversation_history = json.load(f)
+                # Ensure the conversations key exists
+                if "conversations" not in conversation_history:
+                    conversation_history = {"conversations": []}
+        else:
+            conversation_history = {"conversations": []}
+    except json.JSONDecodeError:
+        # Handle case where file exists but is invalid JSON
         conversation_history = {"conversations": []}
     
     # Create LLM based on args
     if args.mock:
-        llm = create_mock_llm_client()
+        # Define mock responses for each query type
+        mock_responses = {
+            "What is the current price of (AAPL)?": {
+                "answer": "The current price of AAPL is $185.64"
+            },
+            "How do options trading work?": {
+                "answer": "Options contracts are financial instruments that give the holder the right, but not the obligation, to buy or sell an asset at a predetermined price within a specific time frame"
+            },
+            "What's happening in the market today?": {
+                "answer": "Today's market is showing mixed signals with tech stocks leading gains while energy sector faces pressure"
+            }
+        }
+        llm = create_mock_llm_client(query_response=mock_responses)
         print("\nUsing Mock LLM")
     else:
         llm = create_ollama_llm()
