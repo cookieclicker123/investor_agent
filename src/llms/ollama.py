@@ -42,7 +42,7 @@ def create_ollama_client() -> llmFn:
         chunks = []
         
         try:
-            # Get the appropriate prompt based on intent
+            # Get the appropriate prompt based on prompt type
             prompt = (
                 llm_request.prompt["selected_agent"] 
                 if isinstance(llm_request.prompt, dict) 
@@ -68,9 +68,10 @@ def create_ollama_client() -> llmFn:
         except Exception as e:
             response = {"error": str(e)}
 
+        # Intent will be set by ollama_llm.py after detection
         return LLMResponse(
             generated_at=datetime.datetime.now().isoformat(),
-            intent=llm_request.intent,
+            intent=[],  # Empty list, will be filled by ollama_llm.py
             request=llm_request,
             raw_response=response,
             model_name=config["model_name"],
