@@ -232,7 +232,7 @@ pip install -r requirements.txt
 pytest tests/test_mock_llm.py
 pytest tests/test_intent_extraction.py
 pytest tests/test_prompts.py
-
+pytest tests/test_ollama.py
 ```
 
 ## Run the main script to get a feel for using a chat interface
