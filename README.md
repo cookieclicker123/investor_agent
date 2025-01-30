@@ -240,3 +240,12 @@ pytest tests/test_ollama.py
 ```bash
 python main.py
 ```
+
+## Run the main_llm script to test the LLM without the UI, or the mock LLM
+
+```bash
+python main_llm.py --mock
+
+python main_llm.py --model llama3.2:3b
+```
+
