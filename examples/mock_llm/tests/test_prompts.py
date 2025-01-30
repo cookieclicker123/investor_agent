@@ -1,6 +1,6 @@
 import pytest
 from src.data_model import Intent
-from src.prompts.prompts_for_test import (  # Note: importing from test_prompts
+from src.prompts.prompts import (  # Note: importing from test_prompts
     META_AGENT_PROMPT,
     WEB_AGENT_PROMPT,
     PDF_AGENT_PROMPT,
