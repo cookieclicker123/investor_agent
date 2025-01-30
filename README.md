@@ -231,6 +231,7 @@ pip install -r requirements.txt
 ```bash
 pytest tests/test_mock_llm.py
 pytest tests/test_intent_extraction.py
+pytest tests/test_prompts.py
 
 ```
 
