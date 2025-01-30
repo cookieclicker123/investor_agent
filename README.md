@@ -115,7 +115,7 @@ investor-agent/
 ├── .gitignore
 ├── README.md
 ├── requirements.txt
-└── main.py               # Main application entry
+└── app.py               # Main application entry
 ```
 
 This structure:
@@ -233,19 +233,19 @@ pytest tests/test_mock_llm.py
 pytest tests/test_intent_extraction.py
 pytest tests/test_prompts.py
 pytest tests/test_ollama.py
+pytest tests/test_groq.py
+
+# run all tests
+pytest tests
 ```
 
-## Run the main script to get a feel for using a chat interface
+## Run the app.py script to test the LLM without the UI, or the mock LLM
 
 ```bash
-python main.py
-```
+python app.py --mock
 
-## Run the main_llm script to test the LLM without the UI, or the mock LLM
+python app.py --model llama3.2:3b
 
-```bash
-python main_llm.py --mock
-
-python main_llm.py --model llama3.2:3b
+python app.py --model deepseek-r1-distill-llama-70b
 ```
 
