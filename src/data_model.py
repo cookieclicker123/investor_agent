@@ -38,4 +38,4 @@ class LLMResponse(BaseModel):
 OnTextFn = Callable[[str], None]
 
 intentFn = Callable[[str], IntentResult]
-llmFn = Callable[[LLMRequest, OnTextFn], LLMResponse]
+llmFn = Callable[[str, OnTextFn], LLMResponse]
