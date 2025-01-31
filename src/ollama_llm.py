@@ -1,28 +1,24 @@
 import datetime
-from typing import Optional
+from typing import Optional, List
 from src.data_model import LLMRequest, LLMResponse, OnTextFn, llmFn, Intent
 from src.llms.ollama import create_ollama_client
-from src.intent_extraction import create_intent_detector
+from src.agents.meta_agent import analyze_query
+from utils.config import get_ollama_config
 from src.prompts.prompts import (
     META_AGENT_PROMPT,
     WEB_AGENT_PROMPT,
     PDF_AGENT_PROMPT,
     FINANCE_AGENT_PROMPT
 )
+import logging
+
+logger = logging.getLogger(__name__)
 
 def create_ollama_llm() -> llmFn:
     """Factory function to create an Ollama LLM client with our prompts."""
     
-    # Set up model configuration
-    model_name = 'llama3.2:3b'
-    provider = 'ollama'
-    
-    if provider != "ollama":
-        raise ValueError(f"Invalid provider: {provider}")
-
-    # Create the base Ollama client and intent detector
+    config = get_ollama_config()
     generate_llm_response = create_ollama_client()
-    detect_intent = create_intent_detector()
 
     async def complete_prompt(
         llm_request: LLMRequest,
@@ -30,68 +26,97 @@ def create_ollama_llm() -> llmFn:
     ) -> LLMResponse:
         """Process request through Ollama with appropriate prompt."""
         try:
-            # First detect the intent
-            intent_result = detect_intent(llm_request.query)
+            logger.debug(f"Received query: {llm_request.query}")
+            logger.debug(f"Initial prompt: {llm_request.prompt}")
             
-            # Format meta agent prompt with detected intent
-            meta_prompt = META_AGENT_PROMPT.format(
-                meta_history="",
-                available_agents="pdf_agent, web_agent, finance_agent",
+            # First get meta agent response
+            meta_request = LLMRequest(
                 query=llm_request.query,
-                detected_intent=intent_result.intent
+                prompt=META_AGENT_PROMPT.format(
+                    meta_history="",
+                    available_agents="pdf_agent, web_agent, finance_agent",
+                    query=llm_request.query,
+                    detected_intent=[]
+                ),
+                as_json=True
             )
-
-            # Select agent-specific prompt based on detected intent
-            if Intent.PDF_AGENT in intent_result.intent:
-                agent_prompt = PDF_AGENT_PROMPT.format(
+            logger.debug(f"Formatted meta prompt: {meta_request.prompt}")
+            
+            meta_response = await generate_llm_response(
+                llm_request=meta_request,
+                on_chunk=lambda x: None
+            )
+            logger.debug(f"Meta agent raw response: {meta_response.raw_response}")
+            
+            # Analyze query to get intents
+            intents = await analyze_query(
+                llm_response=meta_response,
+                query=llm_request.query
+            )
+            
+            # Build agent prompts based on detected intents
+            agent_prompts = []
+            if Intent.PDF_AGENT in intents:
+                agent_prompts.append(PDF_AGENT_PROMPT.format(
                     pdf_history="",
                     context="",
                     query=llm_request.query
-                )
-            elif Intent.WEB_AGENT in intent_result.intent:
-                agent_prompt = WEB_AGENT_PROMPT.format(
+                ))
+            if Intent.WEB_AGENT in intents:
+                agent_prompts.append(WEB_AGENT_PROMPT.format(
                     web_history="",
                     search_results="",
                     query=llm_request.query
-                )
-            elif Intent.FINANCE_AGENT in intent_result.intent:
-                agent_prompt = FINANCE_AGENT_PROMPT.format(
+                ))
+            if Intent.FINANCE_AGENT in intents:
+                agent_prompts.append(FINANCE_AGENT_PROMPT.format(
                     finance_history="",
                     market_data="",
                     query=llm_request.query
-                )
-            else:
-                raise ValueError(f"Unsupported intent: {intent_result.intent}")
-
-            # Update request with both prompts
+                ))
+            
+            # Combine prompts if multiple agents
+            combined_prompt = "\n\n".join(agent_prompts)
+            
+            # Update request with prompts
             llm_request.prompt = {
-                "meta_agent": meta_prompt,
-                "selected_agent": agent_prompt
+                "meta_agent": meta_response.raw_response,
+                "selected_agent": combined_prompt
             }
 
-            # Get response from Ollama
+            if on_chunk is None:
+                on_chunk = lambda x: None
+
+            # Get final response
             llm_response = await generate_llm_response(
                 llm_request=llm_request,
                 on_chunk=on_chunk
             )
             
-            # Add detected intent to response
-            llm_response.intent = intent_result.intent
+            # Ensure raw_response matches our TypedDict structure
+            if isinstance(llm_response.raw_response, str):
+                llm_response.raw_response = {
+                    "meta_agent": {"raw_text": meta_response.raw_response},
+                    "raw_text": llm_response.raw_response
+                }
             
-            # Debug: Print the LLM response
-            print("LLM Response:", llm_response)
-
+            # Add detected intents to response
+            llm_response.intent = intents
+            
             return llm_response
 
         except Exception as e:
-            print(f"Error in Ollama LLM: {str(e)}")
             return LLMResponse(
                 generated_at=datetime.datetime.now().isoformat(),
-                intent=intent_result.intent if 'intent_result' in locals() else [],
+                intent=[Intent.WEB_AGENT],
                 request=llm_request,
-                raw_response={"error": str(e)},
-                model_name=model_name,
-                model_provider=provider,
+                raw_response={
+                    "meta_agent": {"raw_text": ""},
+                    "raw_text": "",
+                    "error": str(e)
+                },
+                model_name=config["model_name"],
+                model_provider=config["provider"],
                 time_in_seconds=0.0
             )
 
