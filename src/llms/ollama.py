@@ -66,7 +66,8 @@ def create_ollama_client() -> llmFn:
                     response = {"raw_text": response}
 
         except Exception as e:
-            response = {"error": str(e)}
+            # Wrap error in raw_text for consistency
+            response = {"raw_text": f"error: {str(e)}"}
 
         # Intent will be set by ollama_llm.py after detection
         return LLMResponse(

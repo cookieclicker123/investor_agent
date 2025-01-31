@@ -2,11 +2,20 @@ import os
 import json
 import asyncio
 import argparse
+import logging
 from src.ollama_llm import create_ollama_llm
 from src.groq_llm import create_groq_llm
 from tests.mocks.mock_llm import create_mock_llm_client
 from src.data_model import LLMRequest
 from utils.config import get_ollama_config, get_groq_config
+
+# Simple file logging
+logging.basicConfig(
+    filename='debug.log',
+    level=logging.DEBUG,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 async def main():
     # Set up argument parser
@@ -77,9 +86,21 @@ async def main():
             llm = create_groq_llm()
             print(f"\nUsing Groq LLM with model: {args.model}")
     
-    # Simple streaming callback
+    # Modified streaming callback
     def on_chunk(chunk: str):
-        print(chunk, end="", flush=True)
+        logger.debug("=== CHUNK PROCESSING ===")
+        logger.debug(f"1. Original chunk: '{chunk}'")
+        
+        # Only remove think tags, preserve all other whitespace
+        cleaned = chunk.replace("<think>", "").replace("</think>", "")
+        logger.debug(f"2. After tag removal: '{cleaned}'")
+        
+        # Don't strip! We need the spaces between words
+        if cleaned:
+            logger.debug(f"3. Printing chunk: '{cleaned}'")
+            print(cleaned, end="", flush=True)
+        else:
+            logger.debug("3. Empty chunk, skipping")
     
     print("\nFinancial Agent Chat Interface")
     print("Type 'exit' to quit")
@@ -89,7 +110,6 @@ async def main():
     print("- What's happening in the market today?\n")
     
     while True:
-        # Get user input
         query = input("\nEnter your query: ").strip()
         
         if query.lower() == 'exit':
@@ -102,29 +122,54 @@ async def main():
         
         request = LLMRequest(
             query=query,
-            prompt="",  # Will be filled by the LLM
+            prompt="",
             as_json=True
         )
         
-        response = await llm(request, on_chunk)
-        print("\n\nIntent detected:", response.intent)
-        print("-" * 50)
-        
-        # Create conversation entry
-        conversation_entry = {
-            "request": request.model_dump(),
-            "response": response.model_dump(),
-            "chunks": [response.raw_response]
-        }
-        
-        # Add to history
-        conversation_history["conversations"].append(conversation_entry)
-        
-        # Save updated history
-        with open(history_file, "w") as f:
-            json.dump(conversation_history, f, indent=2)
-        
-        print("\nConversation logged to tmp/conversation_log.json")
+        try:
+            # Get final response
+            logger.debug("=== Before Final LLM Response ===")
+            logger.debug(f"Request prompt type: {type(request.prompt)}")
+            logger.debug(f"Request prompt content: {request.prompt}")
+
+            response = await llm(request, on_chunk)
+
+            logger.debug("=== After LLM Response ===")
+            logger.debug(f"Initial response type: {type(response.raw_response)}")
+            logger.debug(f"Initial response content: {response.raw_response}")
+            
+            print("\n\nIntent detected:", response.intent)
+            print("-" * 50)
+            
+            # Handle the raw response based on its type
+            if isinstance(response.raw_response, dict):
+                chunks = [response.raw_response]
+            else:
+                chunks = [{
+                    "meta_agent": {"raw_text": ""},
+                    "raw_text": response.raw_response
+                }]
+            
+            # Create conversation entry
+            conversation_entry = {
+                "request": request.model_dump(exclude_none=True),
+                "response": response.model_dump(exclude_none=True),
+                "chunks": chunks
+            }
+            
+            # Add to history
+            conversation_history["conversations"].append(conversation_entry)
+            
+            # Save updated history
+            with open(history_file, "w") as f:
+                json.dump(conversation_history, f, indent=2)
+            
+            print("\nConversation logged to tmp/conversation_log.json")
+            
+        except Exception as e:
+            logger.error("Error processing response", exc_info=True)
+            print(f"\nError processing response: {e}")
+            continue
 
 if __name__ == "__main__":
     asyncio.run(main())
