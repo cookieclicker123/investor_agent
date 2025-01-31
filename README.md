@@ -233,11 +233,13 @@ Refer to the **examples folder first** to see how to use the LLM pipeline, data 
 ## Run pytests to confirm each component works
 
 ```bash
+pytest tests/test_data_model.py
 pytest tests/test_llm.py
 pytest tests/test_intent_extraction.py
 pytest tests/test_prompts.py
 pytest tests/test_ollama.py
 pytest tests/test_groq.py
+pytest tests/test_llm_agents.py
 
 # run all tests
 pytest tests
