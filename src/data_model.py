@@ -30,10 +30,11 @@ class LLMResponse(BaseModel):
     generated_at: str
     intent: List[Intent] | None
     request: LLMRequest
-    raw_response: str | Dict[str, Any]
+    raw_response: Dict[str, Any]
     model_name: str
     model_provider: str
     time_in_seconds: float
+    
 
 OnTextFn = Callable[[str], None]
 
