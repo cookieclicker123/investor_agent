@@ -46,7 +46,7 @@ async def test_groq_prompt_formatting():
     assert isinstance(response.request.prompt, dict)
     assert "meta_agent" in response.request.prompt
     assert "selected_agent" in response.request.prompt
-    assert request.query in response.request.prompt["meta_agent"]
+    assert request.query in response.request.prompt["meta_agent"]["raw_text"]
     assert Intent.PDF_AGENT in response.intent
 
 @pytest.mark.asyncio

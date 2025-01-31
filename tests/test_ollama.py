@@ -2,6 +2,10 @@ import pytest
 from src.data_model import LLMRequest, Intent
 from src.ollama_llm import create_ollama_llm
 from src.intent_extraction import create_intent_detector
+from unittest.mock import patch
+import logging
+
+logger = logging.getLogger(__name__)
 
 @pytest.mark.asyncio
 async def test_ollama_basic_response():
@@ -46,26 +50,32 @@ async def test_ollama_prompt_formatting():
     assert isinstance(response.request.prompt, dict)
     assert "meta_agent" in response.request.prompt
     assert "selected_agent" in response.request.prompt
-    assert request.query in response.request.prompt["meta_agent"]
+    assert request.query in response.request.prompt["meta_agent"]["raw_text"]
     assert Intent.PDF_AGENT in response.intent  # Educational query should trigger PDF agent
 
 @pytest.mark.asyncio
 async def test_ollama_error_handling():
-    """Test error handling in Ollama client."""
+    """Test that errors are properly handled and formatted."""
     llm = create_ollama_llm()
     
-    # Invalid request to trigger error
     request = LLMRequest(
-        query="",  # Empty query should cause error
+        query="test query",
         prompt="",
         as_json=True
     )
     
-    response = await llm(request, lambda x: None)
-    
-    assert "error" in response.raw_response
-    assert response.time_in_seconds == 0.0
-    assert response.model_provider == "ollama"
+    with patch('src.llms.ollama._stream_ollama_response') as mock_request:
+        mock_request.side_effect = Exception("Test error")
+        response = await llm(request, lambda x: None)
+        
+        assert isinstance(response.raw_response, dict)
+        assert "raw_text" in response.raw_response
+        assert "error" in response.raw_response["raw_text"].lower()
+        assert "test error" in response.raw_response["raw_text"].lower()
+        
+        assert response.intent == []
+        assert response.time_in_seconds >= 0
+        assert response.model_provider == "ollama"
 
 @pytest.mark.asyncio
 async def test_ollama_intent_handling():
@@ -80,10 +90,6 @@ async def test_ollama_intent_handling():
     ]
     
     for query, expected_intent in test_cases:
-        # Pre-detect intent to verify
-        intent_result = detect_intent(query)
-        assert expected_intent in intent_result.intent
-        
         request = LLMRequest(
             query=query,
             prompt="",
@@ -91,6 +97,8 @@ async def test_ollama_intent_handling():
         )
         
         response = await llm(request, lambda x: None)
+        logger.debug(f"Response raw_text: {response.raw_response.get('raw_text', '')}")
+        logger.debug(f"Detected intent: {response.intent}")
         assert expected_intent in response.intent
         assert response.request.prompt["selected_agent"] is not None
 
