@@ -2,7 +2,7 @@ import pytest
 import os
 import json
 from src.data_model import LLMRequest, LLMResponse
-from src.mock_llm import create_mock_llm_client
+from tests.mocks.mock_llm import create_mock_llm_client
 
 # Ensure the fixtures directory exists
 @pytest.fixture(scope="session", autouse=True)

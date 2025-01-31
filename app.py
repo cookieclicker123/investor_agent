@@ -4,7 +4,7 @@ import asyncio
 import argparse
 from src.ollama_llm import create_ollama_llm
 from src.groq_llm import create_groq_llm
-from src.mock_llm import create_mock_llm_client
+from tests.mocks.mock_llm import create_mock_llm_client
 from src.data_model import LLMRequest
 from utils.config import get_ollama_config, get_groq_config
 
