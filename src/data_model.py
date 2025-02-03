@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from enum import Enum
-from typing import Dict, List, Any, Callable, Union
+from typing import Dict, List, Any, Callable, Union, Protocol, Optional
 from datetime import datetime
 
 class Intent(str, Enum):
@@ -26,17 +26,48 @@ class LLMRequest(BaseModel):
     prompt: Union[str, Dict[str, str]]
     as_json: bool = False
 
+class ChunkMetadata(BaseModel):
+    """Metadata for document chunks"""
+    title: str
+    author: str
+    creation_date: str
+    source_file: str
+    chunk_id: int
+    total_chunks: int
+    chunk_size: int
+    chunking_strategy: str
+
+class DocumentChunk(BaseModel):
+    """Represents a chunk of text with its metadata"""
+    text: str
+    metadata: ChunkMetadata
+    embedding: Optional[List[float]] = None
+
+class SearchResult(BaseModel):
+    """Result from vector store search"""
+    text: str
+    metadata: ChunkMetadata
+    score: float
+
+class PDFAgentResponse(BaseModel):
+    """Structured response from PDF agent"""
+    query: str
+    relevant_chunks: List[SearchResult]
+    synthesized_response: str
+    confidence_score: float
+
 class LLMResponse(BaseModel):
     generated_at: str
-    intent: List[Intent] | None
+    intent: List[Intent]
     request: LLMRequest
     raw_response: Dict[str, Any]
     model_name: str
     model_provider: str
     time_in_seconds: float
-    
+    pdf_context: Optional[PDFAgentResponse] = None
 
 OnTextFn = Callable[[str], None]
 
 intentFn = Callable[[str], IntentResult]
 llmFn = Callable[[str, OnTextFn], LLMResponse]
+pdfAgentFn = Callable[[str], PDFAgentResponse]
