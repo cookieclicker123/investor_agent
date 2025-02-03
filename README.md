@@ -245,16 +245,6 @@ pytest tests/test_llm_agents.py
 pytest tests
 ```
 
-## Run the app.py script to test the LLM without the UI, or test the mock LLM
-
-```bash
-python app.py --mock
-
-python app.py --model llama3.2:3b
-
-python app.py --model deepseek-r1-distill-llama-70b
-```
-
 ## Create the index for the pdf agent, with or without langchain dependencies
 
 ```bash
@@ -267,12 +257,29 @@ python src/langchain_index/pdf_to_json.py
 python -m src.langchain_index.json_to_index
 ```
 
-## Run the index and similarity search tests
+## Run the index and similarity search tests with dummy pdf agent
 
 ```bash
 pytest tests/test_indexing.py
 python -m tests.test_similarity_search
+
 ```
+
+## Run the app.py script to test the LLM without the UI, or test the mock LLM
+
+```bash
+python app.py --mock
+
+python app.py --model llama3.2:3b
+
+python app.py --model deepseek-r1-distill-llama-70b
+```
+
+
+
+
+
+
 
 
 
