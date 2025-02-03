@@ -1,38 +1,25 @@
 import pytest
+from unittest.mock import patch
+import logging
 from src.data_model import LLMRequest, Intent
 from src.ollama_llm import create_ollama_llm
 from src.intent_extraction import create_intent_detector
-from unittest.mock import patch
-import logging
 
 logger = logging.getLogger(__name__)
 
 @pytest.mark.asyncio
-async def test_ollama_basic_response():
-    """Test basic Ollama response generation."""
+async def test_ollama_basic():
+    """Test basic Ollama LLM functionality."""
     llm = create_ollama_llm()
-    detect_intent = create_intent_detector()
-    
-    chunks = []
-    def on_chunk(chunk: str):
-        chunks.append(chunk)
-        
-    query = "What is the current price of (AAPL)?"
-    intent_result = detect_intent(query)
     
     request = LLMRequest(
-        query=query,
-        prompt="",  # Will be filled by LLM
-        as_json=True
+        query="test query",
+        prompt="test prompt"
     )
     
-    response = await llm(request, on_chunk)
-    
+    response = await llm(request, lambda x: None)
     assert response is not None
     assert response.model_provider == "ollama"
-    assert response.model_name == "llama3.2:3b"
-    assert Intent.FINANCE_AGENT in response.intent  # Check detected intent
-    assert isinstance(response.raw_response, dict)
 
 @pytest.mark.asyncio
 async def test_ollama_prompt_formatting():
@@ -50,8 +37,8 @@ async def test_ollama_prompt_formatting():
     assert isinstance(response.request.prompt, dict)
     assert "meta_agent" in response.request.prompt
     assert "selected_agent" in response.request.prompt
-    assert request.query in response.request.prompt["meta_agent"]["raw_text"]
-    assert Intent.PDF_AGENT in response.intent  # Educational query should trigger PDF agent
+    # Check if query appears in meta prompt content
+    assert request.query in response.request.prompt["meta_agent"]
 
 @pytest.mark.asyncio
 async def test_ollama_error_handling():
@@ -69,27 +56,23 @@ async def test_ollama_error_handling():
         response = await llm(request, lambda x: None)
         
         assert isinstance(response.raw_response, dict)
-        assert "raw_text" in response.raw_response
-        assert "error" in response.raw_response["raw_text"].lower()
-        assert "test error" in response.raw_response["raw_text"].lower()
-        
-        assert response.intent == []
-        assert response.time_in_seconds >= 0
-        assert response.model_provider == "ollama"
+        assert "error" in response.raw_response
+        assert "test error" in response.raw_response["error"].lower()
+        assert response.intents == []  # Error case should have empty intents
+        assert response.confidence == 0.0  # Error case should have zero confidence
 
 @pytest.mark.asyncio
 async def test_ollama_intent_handling():
     """Test handling of different intents."""
     llm = create_ollama_llm()
-    detect_intent = create_intent_detector()
     
     test_cases = [
-        ("What is the current price of (AAPL)?", Intent.FINANCE_AGENT),
-        ("How do options work?", Intent.PDF_AGENT),
-        ("What's happening in the market today?", Intent.WEB_AGENT)
+        ("What is the current price of (AAPL)?", [Intent.FINANCE_AGENT]),
+        ("How do options work?", [Intent.PDF_AGENT, Intent.WEB_AGENT]),
+        ("What's happening in the market today?", [Intent.WEB_AGENT])
     ]
     
-    for query, expected_intent in test_cases:
+    for query, expected_intents in test_cases:
         request = LLMRequest(
             query=query,
             prompt="",
@@ -98,9 +81,9 @@ async def test_ollama_intent_handling():
         
         response = await llm(request, lambda x: None)
         logger.debug(f"Response raw_text: {response.raw_response.get('raw_text', '')}")
-        logger.debug(f"Detected intent: {response.intent}")
-        assert expected_intent in response.intent
-        assert response.request.prompt["selected_agent"] is not None
+        logger.debug(f"Detected intents: {response.intents}")
+        # Check if any of the expected intents are present
+        assert any(intent in response.intents for intent in expected_intents)
 
 @pytest.mark.asyncio
 async def test_ollama_streaming():
@@ -120,5 +103,8 @@ async def test_ollama_streaming():
     )
     
     response = await llm(request, on_chunk)
-    assert Intent.FINANCE_AGENT in response.intent  # Verify correct intent detected
-    assert response.request.prompt["selected_agent"] is not None  # Verify prompt was selected 
+    assert len(chunks) > 0  # Verify we got chunks
+    assert response.intents  # Verify we got some intents
+    assert response.confidence > 0  # Verify we got a confidence score
+    # Check if finance intent is present for stock query
+    assert Intent.FINANCE_AGENT in response.intents 

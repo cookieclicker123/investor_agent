@@ -27,7 +27,7 @@ async def test_groq_basic_response():
     assert response is not None
     assert response.model_provider == "groq"
     assert response.model_name == "deepseek-r1-distill-llama-70b"
-    assert Intent.FINANCE_AGENT in response.intent
+    assert Intent.FINANCE_AGENT in response.intents
     assert isinstance(response.raw_response, dict)
 
 @pytest.mark.asyncio
@@ -47,7 +47,7 @@ async def test_groq_prompt_formatting():
     assert "meta_agent" in response.request.prompt
     assert "selected_agent" in response.request.prompt
     assert request.query in response.request.prompt["meta_agent"]["raw_text"]
-    assert Intent.PDF_AGENT in response.intent
+    assert Intent.PDF_AGENT in response.intents
 
 @pytest.mark.asyncio
 async def test_groq_intent_handling():
@@ -68,7 +68,7 @@ async def test_groq_intent_handling():
         )
         
         response = await llm(request, lambda x: None)
-        assert expected_intent in response.intent
+        assert expected_intent in response.intents
         assert response.request.prompt["selected_agent"] is not None
 
 @pytest.mark.asyncio
@@ -89,6 +89,6 @@ async def test_groq_streaming():
     )
     
     response = await llm(request, on_chunk)
-    assert Intent.FINANCE_AGENT in response.intent
+    assert Intent.FINANCE_AGENT in response.intents
     assert response.request.prompt["selected_agent"] is not None
     assert len(chunks) > 0

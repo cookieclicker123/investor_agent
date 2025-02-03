@@ -37,14 +37,14 @@ class TestLLMAgents:
         
         response = await ollama_llm(request, on_chunk)
         logger.debug(f"Final response: {response}")
-        logger.debug(f"Detected intents: {response.intent}")
+        logger.debug(f"Detected intents: {response.intents}")
         
         # Basic assertions
         assert response is not None
         assert response.raw_response is not None
-        assert response.intent is not None
-        assert len(response.intent) > 0
-        assert Intent.FINANCE_AGENT in response.intent
+        assert response.intents is not None
+        assert len(response.intents) > 0
+        assert Intent.FINANCE_AGENT in response.intents
         
         # Verify prompt structure
         assert isinstance(response.request.prompt, dict)
@@ -71,14 +71,14 @@ class TestLLMAgents:
         response = await groq_llm(request, on_chunk)
         
         logger.debug(f"Groq meta agent response: {response.raw_response}")
-        logger.debug(f"Groq detected intents: {response.intent}")
+        logger.debug(f"Groq detected intents: {response.intents}")
         
         # Basic assertions
         assert response is not None
         assert response.raw_response is not None
-        assert response.intent is not None
-        assert len(response.intent) > 0
-        assert Intent.FINANCE_AGENT in response.intent
+        assert response.intents is not None
+        assert len(response.intents) > 0
+        assert Intent.FINANCE_AGENT in response.intents
         
         # Verify prompt structure
         assert isinstance(response.request.prompt, dict)

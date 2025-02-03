@@ -8,7 +8,8 @@ def test_llm_response_valid_formats():
     # Dict format should work
     dict_response = LLMResponse(
         generated_at="2024-01-31T15:00:00",
-        intent=[Intent.WEB_AGENT],
+        intents=[Intent.WEB_AGENT],
+        confidence=0.8,
         request=base_request,
         raw_response={"raw_text": "response in dict"},
         model_name="test",
@@ -28,7 +29,8 @@ def test_llm_response_streaming_format():
     
     response = LLMResponse(
         generated_at="2024-01-31T15:00:00",
-        intent=[Intent.WEB_AGENT],
+        intents=[Intent.WEB_AGENT],
+        confidence=0.8,
         request=request,
         raw_response=streaming_response,
         model_name="test",
@@ -73,7 +75,8 @@ def test_invalid_formats():
     with pytest.raises(ValueError):
         LLMResponse(
             generated_at="2024-01-31T15:00:00",
-            intent=[Intent.WEB_AGENT],
+            intents=[Intent.WEB_AGENT],
+            confidence=0.8,
             request=request,
             raw_response=123,  # Invalid type
             model_name="test",
@@ -85,9 +88,10 @@ def test_invalid_formats():
     with pytest.raises(ValueError):
         LLMResponse(
             generated_at="2024-01-31T15:00:00",
-            intent=["invalid_intent"],  # Invalid intent
+            intents=["invalid_intent"],  # Invalid intent
+            confidence=0.8,
             request=request,
-            raw_response="test",
+            raw_response={"raw_text": "test"},  # Fixed to valid format
             model_name="test",
             model_provider="test",
             time_in_seconds=1.0
