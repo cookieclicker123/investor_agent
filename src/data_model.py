@@ -49,22 +49,31 @@ class SearchResult(BaseModel):
     metadata: ChunkMetadata
     score: float
 
+class PDFContext(BaseModel):
+    """Represents a chunk of context from PDF documents"""
+    text: str
+    source_file: str
+    chunk_id: int
+    total_chunks: int
+    similarity_score: float
+
 class PDFAgentResponse(BaseModel):
-    """Structured response from PDF agent"""
-    query: str
-    relevant_chunks: List[SearchResult]
-    synthesized_response: str
-    confidence_score: float
+    """Response specific to PDF agent queries"""
+    relevant_chunks: List[PDFContext]
+    synthesized_answer: Optional[str] = None
 
 class LLMResponse(BaseModel):
+    """Enhanced LLM response to include PDF context"""
     generated_at: str
-    intent: List[Intent]
+    intents: List[Intent]
     request: LLMRequest
     raw_response: Dict[str, Any]
     model_name: str
     model_provider: str
     time_in_seconds: float
     pdf_context: Optional[PDFAgentResponse] = None
+    confidence: float
+
 
 OnTextFn = Callable[[str], None]
 
