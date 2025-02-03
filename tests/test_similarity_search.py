@@ -13,12 +13,12 @@ def print_search_results(query: str, results, source: str):
         # Handle both custom DocumentChunk and Langchain Document objects
         if hasattr(chunk, 'text'):
             # Our custom DocumentChunk
-            print(f"Text: {chunk.text[:200]}...")
+            print(f"Text: {chunk.text[:400]}...")
             print(f"Source: {chunk.metadata.source_file}")
             print(f"Chunk ID: {chunk.metadata.chunk_id}/{chunk.metadata.total_chunks}")
         else:
             # Langchain Document
-            print(f"Text: {chunk.page_content[:200]}...")
+            print(f"Text: {chunk.page_content[:400]}...")
             print(f"Source: {chunk.metadata.get('source_file', 'Unknown')}")
             print(f"Chunk ID: {chunk.metadata.get('chunk_id', '?')}/{chunk.metadata.get('total_chunks', '?')}")
 
@@ -44,11 +44,8 @@ def compare_search_results():
     
     # Test queries
     test_queries = [
-        "How does time decay affect option premiums?",
-        "What is the break-even point?",
-        "Explain the profit and loss characteristics",
-        "What are synthetic futures?",
-        "How do risk reversals work?"
+        "What is the best options strategy for a bull market?",
+        "How do i study the balanace sheet?"
     ]
     
     for query in test_queries:
