@@ -138,7 +138,7 @@ async def main():
             logger.debug(f"Initial response type: {type(response.raw_response)}")
             logger.debug(f"Initial response content: {response.raw_response}")
             
-            print("\n\nIntent detected:", response.intent)
+            print("\n\nIntents detected:", response.intents)
             print("-" * 50)
             
             # Handle the raw response based on its type
