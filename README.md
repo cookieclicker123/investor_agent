@@ -267,4 +267,12 @@ python src/langchain_index/pdf_to_json.py
 python -m src.langchain_index.json_to_index
 ```
 
+## Run the index and similarity search tests
+
+```bash
+pytest tests/test_indexing.py
+python -m tests.test_similarity_search
+```
+
+
 
