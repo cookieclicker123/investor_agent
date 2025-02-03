@@ -11,6 +11,7 @@ from src.prompts.prompts import (
     FINANCE_AGENT_PROMPT
 )
 import logging
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +26,14 @@ def create_ollama_llm() -> llmFn:
         on_chunk: Optional[OnTextFn] = None
     ) -> LLMResponse:
         """Process request through Ollama with appropriate prompt."""
+        import time  # Add import if not already at top
+        start_time = time.time()
+        
         try:
+            logger.debug("=== Type Analysis ===")
+            logger.debug(f"Request type: {type(llm_request)}")
+            logger.debug(f"Request prompt type: {type(llm_request.prompt)}")
+            
             logger.debug(f"Received query: {llm_request.query}")
             logger.debug(f"Initial prompt: {llm_request.prompt}")
             
@@ -93,22 +101,28 @@ def create_ollama_llm() -> llmFn:
                 on_chunk=on_chunk
             )
             
-            # Ensure raw_response matches our TypedDict structure
-            if isinstance(llm_response.raw_response, str):
-                llm_response.raw_response = {
-                    "meta_agent": {"raw_text": meta_response.raw_response},
-                    "raw_text": llm_response.raw_response
-                }
+            # Ensure response is always a dict with raw_text
+            if isinstance(llm_response.raw_response, dict) and 'raw_text' in llm_response.raw_response:
+                raw_response = llm_response.raw_response
+            else:
+                raw_response = {"raw_text": str(llm_response.raw_response)}
             
-            # Add detected intents to response
-            llm_response.intent = intents
-            
-            return llm_response
-
-        except Exception as e:
             return LLMResponse(
                 generated_at=datetime.datetime.now().isoformat(),
-                intent=[Intent.WEB_AGENT],
+                request=llm_request,
+                raw_response=raw_response,
+                model_name=config["model_name"],
+                model_provider=config["provider"],
+                time_in_seconds=time.time() - start_time,
+                intents=intents,
+                confidence=0.8,
+                pdf_context=llm_request.pdf_context if Intent.PDF_AGENT in intents else None
+            )
+
+        except Exception as e:
+            logger.error(f"Error in Ollama LLM: {str(e)}")
+            return LLMResponse(
+                generated_at=datetime.datetime.now().isoformat(),
                 request=llm_request,
                 raw_response={
                     "meta_agent": {"raw_text": ""},
@@ -117,7 +131,10 @@ def create_ollama_llm() -> llmFn:
                 },
                 model_name=config["model_name"],
                 model_provider=config["provider"],
-                time_in_seconds=0.0
+                time_in_seconds=0.0,
+                intents=[Intent.WEB_AGENT],
+                confidence=0.0,
+                pdf_context=None
             )
 
     return complete_prompt

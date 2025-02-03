@@ -122,16 +122,25 @@ def create_groq_client() -> llmFn:
                     
             return LLMResponse(
                 generated_at=datetime.datetime.now().isoformat(),
-                intent=[],  # Will be filled by groq_llm.py
+                intents=[],
                 request=llm_request,
-                raw_response=raw_response,  # Always a dict now
+                raw_response=raw_response,
                 model_name=config["model_name"],
                 model_provider=config["provider"],
-                time_in_seconds=round(time.time() - start_time, 2)
+                time_in_seconds=round(time.time() - start_time, 2),
+                confidence=0.0
             )
         except Exception as e:
             logger.error(f"Error in generate_llm_response: {str(e)}")
-            raw_response = {"error": str(e)}
-            raise
+            return LLMResponse(
+                generated_at=datetime.datetime.now().isoformat(),
+                intents=[],
+                request=llm_request,
+                raw_response={"error": str(e)},
+                model_name=config["model_name"],
+                model_provider=config["provider"],
+                time_in_seconds=0.0,
+                confidence=0.0
+            )
     
     return generate_llm_response
