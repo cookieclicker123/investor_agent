@@ -58,12 +58,18 @@ def create_groq_llm() -> llmFn:
                 query=llm_request.query
             )
             
+            # Get PDF context if PDF_AGENT is in intents
+            pdf_context = None
+            if Intent.PDF_AGENT in intents:
+                from tests.mocks.pdf_dummy_tools import get_dummy_context
+                pdf_context = get_dummy_context(llm_request.query)
+            
             # Build agent prompts based on detected intents
             agent_prompts = []
             if Intent.PDF_AGENT in intents:
                 agent_prompts.append(PDF_AGENT_PROMPT.format(
                     pdf_history="",
-                    context="",
+                    context=pdf_context.relevant_chunks if pdf_context else "",
                     query=llm_request.query
                 ))
             if Intent.WEB_AGENT in intents:
@@ -107,29 +113,24 @@ def create_groq_llm() -> llmFn:
             else:
                 raw_response = {"raw_text": str(llm_response.raw_response)}  # Convert to correct format
             
-            # Add detected intents to response
-            llm_response.intent = intents
-            
-            # Before creating LLMResponse
-            logger.debug("=== Final Response Construction ===")
-            logger.debug(f"raw_response type: {type(raw_response)}")
-            logger.debug(f"raw_response content: {raw_response}")
-            
+            # Return response with PDF context if present
             return LLMResponse(
                 generated_at=datetime.datetime.now().isoformat(),
-                intent=intents,
                 request=llm_request,
-                raw_response=raw_response,  # Pass the dict directly
+                raw_response=raw_response,
                 model_name=config["model_name"],
                 model_provider=config["provider"],
-                time_in_seconds=time.time() - start_time
+                time_in_seconds=time.time() - start_time,
+                intents=intents,
+                confidence=0.8,
+                model="groq",
+                pdf_context=pdf_context  # Add PDF context when present
             )
 
         except Exception as e:
             logger.error(f"Error in Groq LLM: {str(e)}")
             return LLMResponse(
                 generated_at=datetime.datetime.now().isoformat(),
-                intent=[Intent.WEB_AGENT],
                 request=llm_request,
                 raw_response={
                     "meta_agent": {"raw_text": ""},
@@ -138,7 +139,11 @@ def create_groq_llm() -> llmFn:
                 },
                 model_name=config["model_name"],
                 model_provider=config["provider"],
-                time_in_seconds=0.0
+                time_in_seconds=0.0,
+                intents=[Intent.WEB_AGENT],
+                confidence=0.0,
+                model="groq",
+                pdf_context=None
             )
 
     return complete_prompt

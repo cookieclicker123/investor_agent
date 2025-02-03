@@ -2,9 +2,12 @@ import datetime
 import time
 import json
 import aiohttp
-from typing import AsyncIterator
+import logging
+from typing import AsyncIterator, Callable
 from src.data_model import LLMRequest, LLMResponse, OnTextFn, llmFn
 from utils.config import get_ollama_config
+
+logger = logging.getLogger(__name__)
 
 async def _stream_ollama_response(
     url: str,
@@ -13,6 +16,8 @@ async def _stream_ollama_response(
     on_chunk: OnTextFn
 ) -> AsyncIterator[str]:
     """Stream response from Ollama API."""
+    logger.debug("Starting Ollama request...")
+    
     async with aiohttp.ClientSession() as session:
         async with session.post(
             url,
@@ -20,13 +25,16 @@ async def _stream_ollama_response(
         ) as response:
             if response.status != 200:
                 error_text = await response.text()
+                logger.error(f"Error response: {error_text}")
                 raise Exception(f"Ollama API error (status {response.status}): {error_text}")
                 
             async for line in response.content:
                 if line:
+                    logger.debug(f"Raw line: {line}")
                     data = json.loads(line)
                     if "response" in data:
                         chunk = data["response"]
+                        logger.debug(f"Yielding content: {chunk}")
                         on_chunk(chunk)
                         yield chunk
 
@@ -36,10 +44,13 @@ def create_ollama_client() -> llmFn:
     
     async def generate_response(
         llm_request: LLMRequest,
-        on_chunk: OnTextFn
+        on_chunk: Callable[[str], None]
     ) -> LLMResponse:
         start_time = time.time()
         chunks = []
+        
+        logger.debug("=== Starting Chunk Processing ===")
+        logger.debug(f"Initial chunks array: {chunks}")
         
         try:
             # Get the appropriate prompt based on prompt type
@@ -55,29 +66,40 @@ def create_ollama_client() -> llmFn:
                 prompt,
                 on_chunk
             ):
+                logger.debug(f"Received chunk type: {type(chunk)}")
+                logger.debug(f"Chunk content: {chunk}")
                 chunks.append(chunk)
-            
+                
+            logger.debug("=== Assembling Final Response ===")
+            logger.debug(f"All chunks collected: {chunks}")
             response = ''.join(chunks)
-
-            if llm_request.as_json and response.strip():
-                try:
-                    response = json.loads(response)
-                except json.JSONDecodeError:
-                    response = {"raw_text": response}
-
+            
+            raw_response = {"raw_text": response}
+            logger.debug(f"Wrapped response type: {type(raw_response)}")
+            logger.debug(f"Wrapped response content: {raw_response}")
+            
+            return LLMResponse(
+                generated_at=datetime.datetime.now().isoformat(),
+                intents=[],
+                request=llm_request,
+                raw_response=raw_response,
+                model_name=config["model_name"],
+                model_provider=config["provider"],
+                time_in_seconds=round(time.time() - start_time, 2),
+                confidence=0.0
+            )
+            
         except Exception as e:
-            # Wrap error in raw_text for consistency
-            response = {"raw_text": f"error: {str(e)}"}
-
-        # Intent will be set by ollama_llm.py after detection
-        return LLMResponse(
-            generated_at=datetime.datetime.now().isoformat(),
-            intent=[],  # Empty list, will be filled by ollama_llm.py
-            request=llm_request,
-            raw_response=response,
-            model_name=config["model_name"],
-            model_provider=config["provider"],
-            time_in_seconds=round(time.time() - start_time, 2)
-        )
+            logger.error(f"Error in generate_response: {str(e)}")
+            return LLMResponse(
+                generated_at=datetime.datetime.now().isoformat(),
+                intents=[],
+                request=llm_request,
+                raw_response={"error": str(e)},
+                model_name=config["model_name"],
+                model_provider=config["provider"],
+                time_in_seconds=0.0,
+                confidence=0.0
+            )
     
     return generate_response
