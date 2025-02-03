@@ -245,7 +245,7 @@ pytest tests/test_llm_agents.py
 pytest tests
 ```
 
-## Run the app.py script to test the LLM without the UI, or the mock LLM
+## Run the app.py script to test the LLM without the UI, or test the mock LLM
 
 ```bash
 python app.py --mock
@@ -254,4 +254,17 @@ python app.py --model llama3.2:3b
 
 python app.py --model deepseek-r1-distill-llama-70b
 ```
+
+## Create the index for the pdf agent, with or without langchain dependencies
+
+```bash
+# without langchain dependencies
+python src/index/pdf_to_json.py
+python -m src.index.json_to_index
+
+# with langchain dependencies
+python src/langchain_index/pdf_to_json.py
+python -m src.langchain_index.json_to_index
+```
+
 
