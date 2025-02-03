@@ -4,3 +4,4 @@ tests/fixtures
 .pytest_cache
 __pycache__
 examples/mock_llm/tests/fixtures
+.DS_Store
