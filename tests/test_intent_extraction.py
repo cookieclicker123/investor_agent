@@ -36,7 +36,7 @@ async def test_pdf_agent_intent():
     
     # Verify intent
     assert isinstance(response, LLMResponse)
-    assert response.intent == [Intent.PDF_AGENT]
+    assert response.intents == [Intent.PDF_AGENT]
     assert response.raw_response == query_response["what are options"]
 
 @pytest.mark.asyncio
@@ -68,7 +68,7 @@ async def test_web_agent_intent():
     
     # Verify intent
     assert isinstance(response, LLMResponse)
-    assert response.intent == [Intent.WEB_AGENT]
+    assert response.intents == [Intent.WEB_AGENT]
     assert response.raw_response == query_response[request.query]
 
 @pytest.mark.asyncio
@@ -100,7 +100,7 @@ async def test_finance_agent_intent():
     
     # Verify intent
     assert isinstance(response, LLMResponse)
-    assert response.intent == [Intent.FINANCE_AGENT]
+    assert response.intents == [Intent.FINANCE_AGENT]
     assert response.raw_response == query_response[request.query]
 
     # Log the conversation to fixtures/intent_conversation_log.json

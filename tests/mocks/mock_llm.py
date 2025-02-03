@@ -78,12 +78,13 @@ def create_mock_llm_client(query_response: Dict[str, Dict[str, Any]], emulation_
         
         return LLMResponse(
             generated_at=datetime.datetime.now().isoformat(),
-            intent=intent_result.intent,
-            request=llm_request,  # Now includes both meta and agent prompts
+            intents=intent_result.intent,
+            confidence=0.8,
+            request=llm_request,
             raw_response=response,
             model_name='mock_llm',
             model_provider="mock",
-            time_in_seconds=round(time.time() - start_time, 2),
+            time_in_seconds=round(time.time() - start_time, 2)
         )
     
     return generate_llm_response
