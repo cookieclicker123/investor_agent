@@ -29,7 +29,8 @@ def create_finance_agent(use_dummy: bool = True) -> financeAgentFn:
             FinanceAgentResponse: Structured response with stock data
         """
         try:
-            response = search_fn(query)
+            # Always include fundamentals for complete analysis
+            response = search_fn(query, include_fundamentals=True)
             
             # Ensure generated_at is set
             if not response.generated_at:
