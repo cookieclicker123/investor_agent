@@ -7,7 +7,6 @@ from ..data_model import FinanceAgentResponse, StockData, StockPrice, StockFunda
 from utils.config import get_alpha_vantage_config
 import re
 import time
-from functools import lru_cache
 
 # Cache for stock data
 CACHE_TTL = 300  # 5 minutes in seconds
