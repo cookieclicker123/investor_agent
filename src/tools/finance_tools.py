@@ -5,6 +5,50 @@ from urllib3.util.retry import Retry
 from typing import List
 from ..data_model import FinanceAgentResponse, StockData, StockPrice, StockFundamentals
 from utils.config import get_alpha_vantage_config
+import re
+
+def extract_stock_symbols(query: str) -> List[str]:
+    """Extract stock symbols with strict formatting requirements"""
+    symbols = set()
+    
+    # Primary check: Look for properly formatted symbols in parentheses
+    parens_pattern = r'\(([A-Z]{1,4})\)'  # 1-4 capital letters in parentheses
+    parens_symbols = set(re.findall(parens_pattern, query))
+    if parens_symbols:
+        symbols.update(parens_symbols)
+        return list(symbols)  # Return early if we find properly formatted symbols
+        
+    # Secondary check: Look for standalone capital letters that match stock pattern
+    standalone_pattern = r'\b[A-Z]{1,4}\b'  # 1-4 capital letters as whole word
+    standalone_matches = set(re.findall(standalone_pattern, query))
+    
+    # Filter standalone matches through additional validation
+    for match in standalone_matches:
+        if looks_like_stock_symbol(match):
+            symbols.add(match)
+    
+    if not symbols:
+        raise ValueError(
+            "No valid stock symbols found. Please use format (AAPL) or AAPL. "
+            "Examples: (MSFT), (GOOGL), AAPL, TSLA"
+        )
+    
+    return list(symbols)
+
+def looks_like_stock_symbol(text: str) -> bool:
+    """Stricter validation for potential stock symbols"""
+    if not (1 <= len(text) <= 4 and text.isalpha() and text.isupper()):
+        return False
+        
+    # Additional validation checks
+    if text.endswith('S'):  # Plural words
+        return False
+    if len(text) == 1:  # Single letters
+        return False
+    if all(c == text[0] for c in text):  # Repeated letters
+        return False
+        
+    return True
 
 def finance_search(query: str) -> FinanceAgentResponse:
     """
@@ -22,25 +66,20 @@ def finance_search(query: str) -> FinanceAgentResponse:
         config = get_alpha_vantage_config()
         API_KEY = config["api_key"]
 
-        # Extract symbols (simple implementation matching dummy version)
-        words = query.upper().split()
-        extracted_symbols = [word.strip(',.!?()') for word in words 
-                           if word.strip(',.!?()').isalpha() 
-                           and len(word.strip(',.!?()')) <= 5]
-        
-        # If no symbols found in query, return error
-        if not extracted_symbols:
+        # Extract symbols using robust method
+        try:
+            extracted_symbols = extract_stock_symbols(query)
+        except ValueError as e:
             return FinanceAgentResponse(
                 query=query,
                 extracted_symbols=[],
                 stock_data=[],
                 generated_at=datetime.now().isoformat(),
-                error="No valid stock symbols found in query. Please provide valid stock symbols."
+                error=str(e)
             )
 
-        # Generate stock data for found symbols
+        # Generate stock data for valid symbols
         stock_data: List[StockData] = []
-        current_date = datetime.now().strftime("%Y-%m-%d")
         
         for symbol in extracted_symbols:
             try:
@@ -95,12 +134,11 @@ def finance_search(query: str) -> FinanceAgentResponse:
                 
             except Exception:
                 continue
-        
-        # If no valid stock data found, return error
+
         if not stock_data:
             return FinanceAgentResponse(
                 query=query,
-                extracted_symbols=[],
+                extracted_symbols=extracted_symbols,
                 stock_data=[],
                 generated_at=datetime.now().isoformat(),
                 error="No valid stock data found for the provided symbols"
@@ -108,7 +146,7 @@ def finance_search(query: str) -> FinanceAgentResponse:
 
         return FinanceAgentResponse(
             query=query,
-            extracted_symbols=[stock.symbol for stock in stock_data],
+            extracted_symbols=extracted_symbols,
             stock_data=stock_data,
             generated_at=datetime.now().isoformat()
         )
