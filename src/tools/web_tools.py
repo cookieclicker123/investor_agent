@@ -1,4 +1,3 @@
-from typing import Optional
 from datetime import datetime, timedelta
 import requests
 from src.data_model import SearchResult, WebAgentResponse, webAgentFn
