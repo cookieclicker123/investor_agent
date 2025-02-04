@@ -4,6 +4,7 @@ from src.data_model import LLMRequest, LLMResponse, OnTextFn, llmFn, Intent
 from src.llms.ollama import create_ollama_client
 from src.agents.meta_agent import analyze_query
 from utils.config import get_ollama_config
+from src.agents.pdf_agent import create_pdf_agent
 from src.prompts.prompts import (
     META_AGENT_PROMPT,
     WEB_AGENT_PROMPT,
@@ -62,12 +63,18 @@ def create_ollama_llm() -> llmFn:
                 query=llm_request.query
             )
             
+            # Get PDF context if PDF_AGENT is in intents
+            pdf_context = None
+            if Intent.PDF_AGENT in intents:
+                pdf_agent = create_pdf_agent()
+                pdf_context = await pdf_agent(llm_request.query)
+
             # Build agent prompts based on detected intents
             agent_prompts = []
             if Intent.PDF_AGENT in intents:
                 agent_prompts.append(PDF_AGENT_PROMPT.format(
                     pdf_history="",
-                    context="",
+                    context=pdf_context.relevant_chunks if pdf_context else "",
                     query=llm_request.query
                 ))
             if Intent.WEB_AGENT in intents:
@@ -116,7 +123,7 @@ def create_ollama_llm() -> llmFn:
                 time_in_seconds=time.time() - start_time,
                 intents=intents,
                 confidence=0.8,
-                pdf_context=llm_request.pdf_context if Intent.PDF_AGENT in intents else None
+                pdf_context=pdf_context
             )
 
         except Exception as e:
