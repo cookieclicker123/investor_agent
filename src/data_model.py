@@ -70,8 +70,36 @@ class WebAgentResponse(BaseModel):
     relevant_results: List[SearchResult]
     generated_at: Optional[str] = None
 
+class StockPrice(BaseModel):
+    """Current stock price and trading data"""
+    price: float
+    change_percent: float
+    volume: int
+    trading_day: str
+
+class StockFundamentals(BaseModel):
+    """Fundamental stock data"""
+    market_cap: Optional[str]
+    pe_ratio: Optional[str]
+    eps: Optional[str]
+
+class StockData(BaseModel):
+    """Complete stock information for a symbol"""
+    symbol: str
+    current_price: StockPrice
+    fundamentals: StockFundamentals
+    last_updated: str  # ISO format timestamp
+
+class FinanceAgentResponse(BaseModel):
+    """Response from finance agent including stock data"""
+    query: str
+    extracted_symbols: List[str]
+    stock_data: List[StockData]
+    generated_at: Optional[str] = None
+    error: Optional[str] = None
+
 class LLMResponse(BaseModel):
-    """Enhanced LLM response to include PDF context"""
+    """Enhanced LLM response to include all agent contexts"""
     generated_at: str
     intents: List[Intent]
     request: LLMRequest
@@ -81,8 +109,8 @@ class LLMResponse(BaseModel):
     time_in_seconds: float
     pdf_context: Optional[PDFAgentResponse] = None
     web_context: Optional[WebAgentResponse] = None
+    finance_context: Optional[FinanceAgentResponse] = None
     confidence: float
-
 
 OnTextFn = Callable[[str], None]
 
@@ -90,3 +118,4 @@ intentFn = Callable[[str], IntentResult]
 llmFn = Callable[[str, OnTextFn], LLMResponse]
 pdfAgentFn = Callable[[str], PDFAgentResponse]
 webAgentFn = Callable[[str], WebAgentResponse]
+financeAgentFn = Callable[[str], FinanceAgentResponse]
