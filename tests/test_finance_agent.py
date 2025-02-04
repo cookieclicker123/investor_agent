@@ -1,4 +1,5 @@
 import pytest
+import os
 from datetime import datetime
 from src.data_model import (
     FinanceAgentResponse, StockData, StockPrice, StockFundamentals,
@@ -6,6 +7,30 @@ from src.data_model import (
 )
 from src.agents.finance_agent import create_finance_agent
 from src.tools.finance_tools import finance_search
+
+@pytest.fixture(autouse=True)
+def check_api_key():
+    """Ensure API key is available and valid before running tests"""
+    api_key = os.getenv("ALPHA_VANTAGE_API_KEY")
+    if not api_key:
+        pytest.skip("ALPHA_VANTAGE_API_KEY not found in environment")
+    print(f"Using API key: {api_key[:4]}...{api_key[-4:]}")  # Debug log first/last 4 chars
+
+def test_api_connectivity():
+    """Test basic API connectivity before running other tests"""
+    # Arrange
+    query = "AAPL"  # Use a reliable stock
+    finance_agent = create_finance_agent(use_dummy=False)
+    
+    # Act
+    response = finance_agent(query)
+    
+    # Assert & Debug
+    print(f"API Response: {response}")  # Debug full response
+    if response.error:
+        print(f"API Error: {response.error}")
+    assert response.error is None, f"API call failed: {response.error}"
+    assert len(response.stock_data) > 0
 
 def test_real_finance_agent_basic_query():
     """Test that real finance agent returns expected response format"""
@@ -16,12 +41,18 @@ def test_real_finance_agent_basic_query():
     # Act
     response = finance_agent(query)
     
+    # Debug logging
+    print(f"Extracted symbols: {response.extracted_symbols}")
+    print(f"Stock data length: {len(response.stock_data)}")
+    if response.error:
+        print(f"Error: {response.error}")
+    
     # Assert
     assert isinstance(response, FinanceAgentResponse)
-    assert "AAPL" in response.extracted_symbols
-    assert len(response.stock_data) > 0
+    assert "AAPL" in response.extracted_symbols, "Symbol extraction failed"
+    assert len(response.stock_data) > 0, "No stock data returned"
     assert response.generated_at is not None
-    assert response.error is None
+    assert response.error is None, f"Unexpected error: {response.error}"
     
     # Check real data structure
     stock = response.stock_data[0]
@@ -130,4 +161,20 @@ def test_real_finance_agent_multiple_symbols():
     for stock in response.stock_data:
         assert stock.current_price.price > 0
         assert stock.current_price.volume > 0
-        assert isinstance(stock.fundamentals.market_cap, str) 
+        assert isinstance(stock.fundamentals.market_cap, str)
+
+def test_api_error_handling():
+    """Test specific API error scenarios"""
+    # Test with invalid API key
+    original_key = os.getenv("ALPHA_VANTAGE_API_KEY")
+    os.environ["ALPHA_VANTAGE_API_KEY"] = "invalid_key"
+    
+    finance_agent = create_finance_agent(use_dummy=False)
+    response = finance_agent("AAPL")
+    
+    print(f"Invalid key response: {response}")  # Debug log
+    assert response.error is not None
+    assert "API" in response.error.lower()
+    
+    # Restore original key
+    os.environ["ALPHA_VANTAGE_API_KEY"] = original_key 
