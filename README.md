@@ -240,6 +240,7 @@ pytest tests/test_prompts.py
 pytest tests/test_ollama.py
 pytest tests/test_groq.py
 pytest tests/test_llm_agents.py
+pytest tests/test_pdf_agent.py
 
 # run all tests
 pytest tests
