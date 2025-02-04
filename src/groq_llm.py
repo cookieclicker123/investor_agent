@@ -3,6 +3,7 @@ import logging
 from typing import Optional, List
 from src.data_model import LLMRequest, LLMResponse, OnTextFn, llmFn, Intent
 from src.llms.groq import create_groq_client
+from tests.mocks.pdf_dummy_tools import get_dummy_context
 from src.agents.meta_agent import analyze_query
 from utils.config import get_groq_config
 from src.prompts.prompts import (
@@ -12,6 +13,7 @@ from src.prompts.prompts import (
     FINANCE_AGENT_PROMPT
 )
 import time
+from src.agents.pdf_agent import create_pdf_agent
 
 logger = logging.getLogger(__name__)
 
@@ -61,8 +63,8 @@ def create_groq_llm() -> llmFn:
             # Get PDF context if PDF_AGENT is in intents
             pdf_context = None
             if Intent.PDF_AGENT in intents:
-                from tests.mocks.pdf_dummy_tools import get_dummy_context
-                pdf_context = get_dummy_context(llm_request.query)
+                pdf_agent = create_pdf_agent()
+                pdf_context = await pdf_agent(llm_request.query)
             
             # Build agent prompts based on detected intents
             agent_prompts = []
