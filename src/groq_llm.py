@@ -13,6 +13,7 @@ from src.prompts.prompts import (
     PDF_AGENT_PROMPT,
     FINANCE_AGENT_PROMPT
 )
+from src.agents.web_agent import create_web_agent
 
 
 
@@ -67,6 +68,12 @@ def create_groq_llm() -> llmFn:
                 pdf_agent = create_pdf_agent()
                 pdf_context = await pdf_agent(llm_request.query)
             
+            # Get web context if WEB_AGENT is in intents
+            web_context = None
+            if Intent.WEB_AGENT in intents:
+                web_agent = await create_web_agent()
+                web_context = await web_agent(llm_request.query)
+            
             # Build agent prompts based on detected intents
             agent_prompts = []
             if Intent.PDF_AGENT in intents:
@@ -78,7 +85,7 @@ def create_groq_llm() -> llmFn:
             if Intent.WEB_AGENT in intents:
                 agent_prompts.append(WEB_AGENT_PROMPT.format(
                     web_history="",
-                    search_results="",
+                    search_results=web_context.relevant_results if web_context else "",
                     query=llm_request.query
                 ))
             if Intent.FINANCE_AGENT in intents:
@@ -116,6 +123,9 @@ def create_groq_llm() -> llmFn:
             else:
                 raw_response = {"raw_text": str(llm_response.raw_response)}  # Convert to correct format
             
+            # Add web context to response
+            llm_response.web_context = web_context
+            
             # Return response with PDF context if present
             return LLMResponse(
                 generated_at=datetime.datetime.now().isoformat(),
@@ -127,7 +137,8 @@ def create_groq_llm() -> llmFn:
                 intents=intents,
                 confidence=0.8,
                 model="groq",
-                pdf_context=pdf_context  # Add PDF context when present
+                pdf_context=pdf_context,  # Add PDF context when present
+                web_context=web_context  # Add web context when present
             )
 
         except Exception as e:
@@ -146,7 +157,8 @@ def create_groq_llm() -> llmFn:
                 intents=[Intent.WEB_AGENT],
                 confidence=0.0,
                 model="groq",
-                pdf_context=None
+                pdf_context=None,
+                web_context=None
             )
 
     return complete_prompt
