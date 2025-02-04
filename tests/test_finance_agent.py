@@ -1,0 +1,133 @@
+import pytest
+from datetime import datetime
+from src.data_model import (
+    FinanceAgentResponse, StockData, StockPrice, StockFundamentals,
+    LLMResponse, LLMRequest, Intent
+)
+from src.agents.finance_agent import create_finance_agent
+from src.tools.finance_tools import finance_search
+
+def test_real_finance_agent_basic_query():
+    """Test that real finance agent returns expected response format"""
+    # Arrange
+    query = "What's the price of AAPL?"
+    finance_agent = create_finance_agent(use_dummy=False)
+    
+    # Act
+    response = finance_agent(query)
+    
+    # Assert
+    assert isinstance(response, FinanceAgentResponse)
+    assert "AAPL" in response.extracted_symbols
+    assert len(response.stock_data) > 0
+    assert response.generated_at is not None
+    assert response.error is None
+    
+    # Check real data structure
+    stock = response.stock_data[0]
+    assert isinstance(stock.current_price.price, float)
+    assert isinstance(stock.current_price.volume, int)
+    assert isinstance(stock.current_price.change_percent, float)
+
+def test_real_stock_data_models():
+    """Test real stock data contains valid information"""
+    # Arrange
+    query = "Compare MSFT stock"
+    finance_agent = create_finance_agent(use_dummy=False)
+    
+    # Act
+    response = finance_agent(query)
+    stock_data = response.stock_data[0]
+    
+    # Assert
+    assert isinstance(stock_data, StockData)
+    assert stock_data.symbol == "MSFT"
+    assert stock_data.current_price.price > 0
+    assert isinstance(stock_data.fundamentals.market_cap, str)
+    assert isinstance(stock_data.fundamentals.pe_ratio, str)
+    assert stock_data.last_updated is not None
+
+def test_real_finance_agent_integration_with_llm():
+    """Test real finance agent integration with LLMResponse"""
+    # Arrange
+    query = "Compare AAPL and MSFT"
+    llm_request = LLMRequest(
+        query=query,
+        prompt="Test prompt",
+        as_json=True
+    )
+    
+    # Create LLMResponse with finance context
+    finance_agent = create_finance_agent(use_dummy=False)
+    finance_context = finance_agent(query)
+    
+    llm_response = LLMResponse(
+        generated_at=datetime.now().isoformat(),
+        intents=[Intent.FINANCE_AGENT],
+        request=llm_request,
+        raw_response={"text": "Test response"},
+        model_name="test-model",
+        model_provider="test-provider",
+        time_in_seconds=0.1,
+        pdf_context=None,
+        web_context=None,
+        finance_context=finance_context,
+        confidence=0.8
+    )
+    
+    # Assert
+    assert llm_response.finance_context is not None
+    assert isinstance(llm_response.finance_context, FinanceAgentResponse)
+    assert len(llm_response.finance_context.extracted_symbols) == 2
+    assert all(symbol in ["AAPL", "MSFT"] for symbol in llm_response.finance_context.extracted_symbols)
+
+def test_real_finance_agent_invalid_symbols():
+    """Test real finance agent handles invalid stock symbols"""
+    # Arrange
+    query = "What's the price of INVALID?"
+    finance_agent = create_finance_agent(use_dummy=False)
+    
+    # Act
+    response = finance_agent(query)
+    
+    # Assert
+    assert isinstance(response, FinanceAgentResponse)
+    assert response.error is not None
+    assert len(response.stock_data) == 0
+    assert len(response.extracted_symbols) == 0
+
+def test_real_finance_agent_api_rate_limit():
+    """Test finance agent handles API rate limiting"""
+    # Arrange
+    queries = ["AAPL", "MSFT", "GOOGL", "TSLA", "AMZN"]  # Multiple queries to potentially trigger rate limit
+    finance_agent = create_finance_agent(use_dummy=False)
+    
+    # Act & Assert
+    for query in queries:
+        response = finance_agent(query)
+        assert isinstance(response, FinanceAgentResponse)
+        if response.error:
+            assert "API rate limit" in response.error
+            break
+        else:
+            assert len(response.stock_data) > 0
+
+def test_real_finance_agent_multiple_symbols():
+    """Test real finance agent handles multiple valid stock symbols"""
+    # Arrange
+    query = "Compare AAPL, MSFT, and GOOGL"
+    finance_agent = create_finance_agent(use_dummy=False)
+    
+    # Act
+    response = finance_agent(query)
+    
+    # Assert
+    assert isinstance(response, FinanceAgentResponse)
+    assert len(response.extracted_symbols) > 0
+    assert all(isinstance(data, StockData) for data in response.stock_data)
+    
+    # Check each stock has valid data
+    for stock in response.stock_data:
+        assert stock.current_price.price > 0
+        assert stock.current_price.volume > 0
+        assert isinstance(stock.fundamentals.market_cap, str) 
