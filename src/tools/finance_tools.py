@@ -2,10 +2,30 @@ from datetime import datetime
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
-from typing import List
+from typing import List, Optional, Dict, Any
 from ..data_model import FinanceAgentResponse, StockData, StockPrice, StockFundamentals
 from utils.config import get_alpha_vantage_config
 import re
+import time
+from functools import lru_cache
+
+# Cache for stock data
+CACHE_TTL = 300  # 5 minutes in seconds
+stock_cache: Dict[str, tuple[Any, float]] = {}
+
+def get_cached_data(symbol: str) -> Optional[Dict]:
+    """Get cached stock data if valid"""
+    if symbol in stock_cache:
+        data, timestamp = stock_cache[symbol]
+        if time.time() - timestamp < CACHE_TTL:
+            return data
+        else:
+            del stock_cache[symbol]  # Clear expired cache
+    return None
+
+def cache_stock_data(symbol: str, data: Dict):
+    """Cache stock data with timestamp"""
+    stock_cache[symbol] = (data, time.time())
 
 def extract_stock_symbols(query: str) -> List[str]:
     """Extract stock symbols with strict formatting requirements"""
@@ -50,23 +70,17 @@ def looks_like_stock_symbol(text: str) -> bool:
         
     return True
 
-def finance_search(query: str) -> FinanceAgentResponse:
-    """
-    Real finance data from Alpha Vantage API.
-    Returns stock data for valid stock symbols.
-    """
+def finance_search(query: str, include_fundamentals: bool = False) -> FinanceAgentResponse:
+    """Real finance data from Alpha Vantage API with caching"""
     try:
-        # Initialize session with retry strategy
         session = requests.Session()
         retries = Retry(total=3, backoff_factor=0.5, status_forcelist=[429, 500, 502, 503, 504])
         session.mount('https://', HTTPAdapter(max_retries=retries))
 
-        # API Configuration
         BASE_URL = "https://www.alphavantage.co/query"
         config = get_alpha_vantage_config()
         API_KEY = config["api_key"]
 
-        # Extract symbols using robust method
         try:
             extracted_symbols = extract_stock_symbols(query)
         except ValueError as e:
@@ -78,11 +92,16 @@ def finance_search(query: str) -> FinanceAgentResponse:
                 error=str(e)
             )
 
-        # Generate stock data for valid symbols
         stock_data: List[StockData] = []
         
         for symbol in extracted_symbols:
             try:
+                # Check cache first
+                cached_data = get_cached_data(symbol)
+                if cached_data:
+                    stock_data.append(cached_data)
+                    continue
+
                 # Get current price data
                 quote_params = {
                     "function": "GLOBAL_QUOTE",
@@ -99,40 +118,50 @@ def finance_search(query: str) -> FinanceAgentResponse:
                 
                 if "Error Message" in quote_data or "Note" in quote_data:
                     continue
-                
-                # Get company overview data
-                overview_params = {
-                    "function": "OVERVIEW",
-                    "symbol": symbol,
-                    "apikey": API_KEY
-                }
-                
-                overview_response = session.get(
-                    BASE_URL,
-                    params=overview_params,
-                    timeout=10
+
+                # Create stock data with optional fundamentals
+                stock = StockData(
+                    symbol=symbol,
+                    current_price=StockPrice(
+                        price=float(quote_data["Global Quote"]["05. price"]),
+                        change_percent=float(quote_data["Global Quote"]["10. change percent"].rstrip('%')),
+                        volume=int(quote_data["Global Quote"]["06. volume"]),
+                        trading_day=quote_data["Global Quote"]["07. latest trading day"]
+                    ),
+                    fundamentals=StockFundamentals(
+                        market_cap=None,
+                        pe_ratio=None,
+                        eps=None
+                    ),
+                    last_updated=datetime.now().isoformat()
                 )
-                overview_data = overview_response.json()
-                
-                stock_data.append(
-                    StockData(
-                        symbol=symbol,
-                        current_price=StockPrice(
-                            price=float(quote_data["Global Quote"]["05. price"]),
-                            change_percent=float(quote_data["Global Quote"]["10. change percent"].rstrip('%')),
-                            volume=int(quote_data["Global Quote"]["06. volume"]),
-                            trading_day=quote_data["Global Quote"]["07. latest trading day"]
-                        ),
-                        fundamentals=StockFundamentals(
-                            market_cap=overview_data.get("MarketCapitalization"),
-                            pe_ratio=overview_data.get("PERatio"),
-                            eps=overview_data.get("EPS")
-                        ),
-                        last_updated=datetime.now().isoformat()
+
+                # Only fetch fundamentals if explicitly requested
+                if include_fundamentals:
+                    overview_params = {
+                        "function": "OVERVIEW",
+                        "symbol": symbol,
+                        "apikey": API_KEY
+                    }
+                    
+                    overview_response = session.get(
+                        BASE_URL,
+                        params=overview_params,
+                        timeout=10
                     )
-                )
+                    overview_data = overview_response.json()
+                    
+                    stock.fundamentals = StockFundamentals(
+                        market_cap=overview_data.get("MarketCapitalization"),
+                        pe_ratio=overview_data.get("PERatio"),
+                        eps=overview_data.get("EPS")
+                    )
+
+                stock_data.append(stock)
+                cache_stock_data(symbol, stock)
                 
-            except Exception:
+            except Exception as e:
+                print(f"Error fetching data for {symbol}: {str(e)}")
                 continue
 
         if not stock_data:
