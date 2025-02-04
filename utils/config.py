@@ -25,3 +25,19 @@ def get_groq_config():
         "api_key": os.getenv("GROQ_API_KEY"),
         "display_name": "Groq (DeepSeek R1 Distill LLaMA 70B)"
     }
+
+def get_serper_config():
+    """Get Serper configuration."""
+    return {
+        "api_key": os.getenv("SERPER_API_KEY")
+    }
+
+def get_alpha_vantage_config():
+    """Get Alpha Vantage configuration."""
+    return {
+        "api_key": os.getenv("ALPHA_VANTAGE_API_KEY")
+    }
+
+
+
+
