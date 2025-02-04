@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from enum import Enum
-from typing import Dict, List, Any, Callable, Union, Protocol, Optional
+from typing import Dict, List, Any, Callable, Union, Optional
 from datetime import datetime
 
 class Intent(str, Enum):
@@ -43,12 +43,6 @@ class DocumentChunk(BaseModel):
     metadata: ChunkMetadata
     embedding: Optional[List[float]] = None
 
-class SearchResult(BaseModel):
-    """Result from vector store search"""
-    text: str
-    metadata: ChunkMetadata
-    score: float
-
 class PDFContext(BaseModel):
     """Represents a chunk of context from PDF documents"""
     text: str
@@ -62,6 +56,19 @@ class PDFAgentResponse(BaseModel):
     relevant_chunks: List[PDFContext]
     synthesized_answer: Optional[str] = None
 
+class SearchResult(BaseModel):
+    """Individual search result from web search"""
+    title: str
+    snippet: str
+    link: str
+    date: Optional[str] = None
+
+class WebAgentResponse(BaseModel):
+    """Response from web agent including search results"""
+    query: str
+    search_results: List[SearchResult]
+    relevant_results: List[SearchResult]
+    generated_at: datetime = datetime.now()
 class LLMResponse(BaseModel):
     """Enhanced LLM response to include PDF context"""
     generated_at: str
@@ -72,6 +79,7 @@ class LLMResponse(BaseModel):
     model_provider: str
     time_in_seconds: float
     pdf_context: Optional[PDFAgentResponse] = None
+    web_context: Optional[WebAgentResponse] = None
     confidence: float
 
 
@@ -80,3 +88,4 @@ OnTextFn = Callable[[str], None]
 intentFn = Callable[[str], IntentResult]
 llmFn = Callable[[str, OnTextFn], LLMResponse]
 pdfAgentFn = Callable[[str], PDFAgentResponse]
+webAgentFn = Callable[[str], WebAgentResponse]
