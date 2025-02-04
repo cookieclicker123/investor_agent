@@ -1,11 +1,13 @@
 import datetime
 import time
 import logging
-from typing import Optional, List
+from typing import Optional
 from src.data_model import LLMRequest, LLMResponse, OnTextFn, llmFn, Intent
 from src.llms.groq import create_groq_client
 from src.agents.pdf_agent import create_pdf_agent
 from src.agents.meta_agent import analyze_query
+from src.agents.web_agent import create_web_agent
+from src.agents.finance_agent import create_finance_agent
 from utils.config import get_groq_config
 from src.prompts.prompts import (
     META_AGENT_PROMPT,
@@ -13,9 +15,6 @@ from src.prompts.prompts import (
     PDF_AGENT_PROMPT,
     FINANCE_AGENT_PROMPT
 )
-from src.agents.web_agent import create_web_agent
-
-
 
 logger = logging.getLogger(__name__)
 
@@ -62,17 +61,22 @@ def create_groq_llm() -> llmFn:
                 query=llm_request.query
             )
             
-            # Get PDF context if PDF_AGENT is in intents
+            # Get contexts based on intents
             pdf_context = None
+            web_context = None
+            finance_context = None
+            
             if Intent.PDF_AGENT in intents:
                 pdf_agent = create_pdf_agent()
                 pdf_context = await pdf_agent(llm_request.query)
             
-            # Get web context if WEB_AGENT is in intents
-            web_context = None
             if Intent.WEB_AGENT in intents:
                 web_agent = await create_web_agent()
                 web_context = await web_agent(llm_request.query)
+                
+            if Intent.FINANCE_AGENT in intents:
+                finance_agent = create_finance_agent(use_dummy=False)
+                finance_context = finance_agent(llm_request.query)
             
             # Build agent prompts based on detected intents
             agent_prompts = []
@@ -91,7 +95,7 @@ def create_groq_llm() -> llmFn:
             if Intent.FINANCE_AGENT in intents:
                 agent_prompts.append(FINANCE_AGENT_PROMPT.format(
                     finance_history="",
-                    market_data="",
+                    market_data=finance_context.stock_data if finance_context else "",
                     query=llm_request.query
                 ))
             
@@ -123,10 +127,6 @@ def create_groq_llm() -> llmFn:
             else:
                 raw_response = {"raw_text": str(llm_response.raw_response)}  # Convert to correct format
             
-            # Add web context to response
-            llm_response.web_context = web_context
-            
-            # Return response with PDF context if present
             return LLMResponse(
                 generated_at=datetime.datetime.now().isoformat(),
                 request=llm_request,
@@ -137,8 +137,9 @@ def create_groq_llm() -> llmFn:
                 intents=intents,
                 confidence=0.8,
                 model="groq",
-                pdf_context=pdf_context,  # Add PDF context when present
-                web_context=web_context  # Add web context when present
+                pdf_context=pdf_context,
+                web_context=web_context,
+                finance_context=finance_context
             )
 
         except Exception as e:
@@ -154,11 +155,12 @@ def create_groq_llm() -> llmFn:
                 model_name=config["model_name"],
                 model_provider=config["provider"],
                 time_in_seconds=0.0,
-                intents=[Intent.WEB_AGENT],
+                intents=[],
                 confidence=0.0,
                 model="groq",
                 pdf_context=None,
-                web_context=None
+                web_context=None,
+                finance_context=None
             )
 
     return complete_prompt
