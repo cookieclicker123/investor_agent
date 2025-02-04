@@ -53,8 +53,8 @@ def create_web_search() -> webAgentFn:
             web_response = WebAgentResponse(
                 query=query,
                 search_results=search_results,
-                relevant_results=search_results[:7],  # Top 5 most relevant
-                generated_at=datetime.now()
+                relevant_results=search_results[:7],  # Top 7 most relevant
+                generated_at=datetime.now().isoformat()  # Set as ISO string
             )
             
             # Cache the response

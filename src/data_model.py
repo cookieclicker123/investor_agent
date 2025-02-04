@@ -68,7 +68,8 @@ class WebAgentResponse(BaseModel):
     query: str
     search_results: List[SearchResult]
     relevant_results: List[SearchResult]
-    generated_at: datetime = datetime.now()
+    generated_at: Optional[str] = None
+
 class LLMResponse(BaseModel):
     """Enhanced LLM response to include PDF context"""
     generated_at: str
