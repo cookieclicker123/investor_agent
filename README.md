@@ -230,22 +230,6 @@ pip install -r requirements.txt
 
 Refer to the **examples folder first** to see how to use the LLM pipeline, data model, and intent extraction, without all the moving parts of the real llms, agents, tools, and frontend
 
-## Run pytests to confirm each component works
-
-```bash
-pytest tests/test_data_model.py
-pytest tests/test_llm.py
-pytest tests/test_intent_extraction.py
-pytest tests/test_prompts.py
-pytest tests/test_ollama.py
-pytest tests/test_groq.py
-pytest tests/test_llm_agents.py
-pytest tests/test_pdf_agent.py
-
-# run all tests
-pytest tests
-```
-
 ## Create the index for the pdf agent, with or without langchain dependencies
 
 ```bash
@@ -264,6 +248,27 @@ python -m src.langchain_index.json_to_index
 pytest tests/test_indexing.py
 python -m tests.test_similarity_search
 
+```
+
+## Run pytests to confirm each component works
+
+```bash
+pytest tests/test_data_model.py
+pytest tests/test_llm.py
+pytest tests/test_intent_extraction.py
+pytest tests/test_prompts.py
+pytest tests/test_ollama.py
+pytest tests/test_groq.py
+pytest tests/test_llm_agents.py
+pytest tests/test_dummy_pdf_agent.py
+pytest tests/test_pdf_agent.py
+pytest tests/test_dummy_web_agent.py
+pytest tests/test_web_agent.py
+pytest tests/test_dummy_finance_agent.py
+pytest tests/test_finance_agent.py
+
+# run all tests
+pytest tests
 ```
 
 ## Run the app.py script to test the LLM without the UI, or test the mock LLM
