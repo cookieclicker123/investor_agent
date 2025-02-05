@@ -111,6 +111,8 @@ class LLMResponse(BaseModel):
     web_context: Optional[WebAgentResponse] = None
     finance_context: Optional[FinanceAgentResponse] = None
     confidence: float
+    query_type: Optional[str] = None
+    complexity: Optional[str] = None
 
 OnTextFn = Callable[[str], None]
 
