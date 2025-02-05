@@ -25,12 +25,13 @@ def create_web_app(llm_function: llmFn):
     @app.post("/query")
     async def query(request: QueryRequest):
         async def generate_chunks() -> AsyncGenerator[str, None]:
-            chunk_queue = Queue()
+            chunk_queue: Queue = Queue()
             
-            def chunk_handler(chunk: str):            
-                return chunk_queue.put_nowait(
+            def chunk_handler(chunk: str):
+                # Create task for queue put operation
+                asyncio.create_task(chunk_queue.put(
                     f"data: {json.dumps({'type': 'chunk', 'content': chunk})}\n\n"
-                )
+                ))
             
             llm_request = LLMRequest(
                 query=request.query,
@@ -45,15 +46,18 @@ def create_web_app(llm_function: llmFn):
             try:
                 while not workflow_task.done() or not chunk_queue.empty():
                     try:
-                        chunk = await asyncio.wait_for(chunk_queue.get(), timeout=0.05)
+                        # Change this line - don't await get_nowait
+                        chunk = chunk_queue.get_nowait()  # Remove await here
                         yield chunk
                         
                         while not chunk_queue.empty():
-                            yield await chunk_queue.get_nowait()
+                            chunk = chunk_queue.get_nowait()  # And here
+                            yield chunk
                             
-                    except asyncio.TimeoutError:
+                    except asyncio.QueueEmpty:
                         if workflow_task.done() and chunk_queue.empty():
                             break
+                        await asyncio.sleep(0.05)
                         continue
                 
                 if not workflow_task.cancelled():
