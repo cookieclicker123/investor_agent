@@ -8,6 +8,9 @@ from src.groq_llm import create_groq_llm
 from tests.mocks.mock_llm import create_mock_llm_client
 from src.data_model import LLMRequest
 from utils.config import get_ollama_config, get_groq_config
+import uvicorn
+from src.web_app import create_web_app
+import threading
 
 # Simple file logging
 logging.basicConfig(
@@ -16,6 +19,29 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
+
+# Simple mock responses
+MOCK_RESPONSES = {
+    "What is the current price of (AAPL)?": {
+        "answer": "The current price of AAPL is $185.64"
+    },
+    "How do options trading work?": {
+        "answer": "Options contracts are financial instruments that give the holder the right, but not the obligation, to buy or sell an asset at a predetermined price within a specific time frame"
+    },
+    "What's happening in the market today?": {
+        "answer": "Today's market is showing mixed signals with tech stocks leading gains while energy sector faces pressure"
+    }
+}
+
+def run_web_server(llm):
+    """Run the FastAPI server in a separate thread"""
+    app = create_web_app(llm)
+    uvicorn.run(
+        app,
+        host="0.0.0.0",
+        port=8006,
+        log_level="info"
+    )
 
 async def main():
     # Set up argument parser
@@ -64,27 +90,24 @@ async def main():
     
     # Create LLM based on args
     if args.mock:
-        mock_responses = {
-            "What is the current price of (AAPL)?": {
-                "answer": "The current price of AAPL is $185.64"
-            },
-            "How do options trading work?": {
-                "answer": "Options contracts are financial instruments that give the holder the right, but not the obligation, to buy or sell an asset at a predetermined price within a specific time frame"
-            },
-            "What's happening in the market today?": {
-                "answer": "Today's market is showing mixed signals with tech stocks leading gains while energy sector faces pressure"
-            }
-        }
-        llm = create_mock_llm_client(query_response=mock_responses)
+        llm = create_mock_llm_client(query_response=MOCK_RESPONSES)
         print("\nUsing Mock LLM")
     else:
-        # Choose between Ollama and Groq based on model name
         if args.model in ollama_models:
             llm = create_ollama_llm()
             print(f"\nUsing Ollama LLM with model: {args.model}")
         else:
             llm = create_groq_llm()
             print(f"\nUsing Groq LLM with model: {args.model}")
+
+    # Start web server in a separate thread
+    print("\nStarting web server...")
+    server_thread = threading.Thread(target=run_web_server, args=(llm,))
+    server_thread.daemon = True  # This ensures the thread will be killed when the main program exits
+    server_thread.start()
+    
+    # Give the server a moment to start
+    await asyncio.sleep(2)
     
     # Modified streaming callback
     def on_chunk(chunk: str):
