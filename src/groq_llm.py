@@ -75,8 +75,13 @@ def create_groq_llm() -> llmFn:
                 web_context = await web_agent(llm_request.query)
                 
             if Intent.FINANCE_AGENT in intents:
-                finance_agent = create_finance_agent(use_dummy=False)
-                finance_context = finance_agent(llm_request.query)
+                try:
+                    finance_agent = create_finance_agent()
+                    finance_context = finance_agent(llm_request.query)
+                except Exception as finance_error:
+                    logger.error(f"Finance agent error: {finance_error}")
+                    finance_context = None
+                    # Don't remove the intent - let the LLM still try to handle it
             
             # Build agent prompts based on detected intents
             agent_prompts = []
@@ -155,7 +160,7 @@ def create_groq_llm() -> llmFn:
                 model_name=config["model_name"],
                 model_provider=config["provider"],
                 time_in_seconds=0.0,
-                intents=[],
+                intents=intents if 'intents' in locals() else [Intent.WEB_AGENT],  # Preserve intents if we have them
                 confidence=0.0,
                 model="groq",
                 pdf_context=None,
