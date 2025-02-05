@@ -5,3 +5,4 @@ tests/fixtures
 __pycache__
 examples/mock_llm/tests/fixtures
 .DS_Store
+.chainlit
