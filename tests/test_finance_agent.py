@@ -1,12 +1,15 @@
+"""
+DO NOT RUN THIS TEST TOO MANY API CALLS FIXING IT. 15 only get 25 calls a day on finance, the dummy worked fine so all good.
+"""
+
 import pytest
 import os
 from datetime import datetime
 from src.data_model import (
-    FinanceAgentResponse, StockData, StockPrice, StockFundamentals,
+    FinanceAgentResponse, StockData,
     LLMResponse, LLMRequest, Intent
 )
 from src.agents.finance_agent import create_finance_agent
-from src.tools.finance_tools import finance_search
 
 @pytest.fixture(autouse=True)
 def check_api_key():
@@ -178,3 +181,6 @@ def test_api_error_handling():
     
     # Restore original key
     os.environ["ALPHA_VANTAGE_API_KEY"] = original_key 
+
+
+
