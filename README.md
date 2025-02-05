@@ -325,6 +325,17 @@ http://localhost:8006/docs
 Note: Ensure Ollama is running on your host machine before using the Ollama model.
 
 
+## Chainlit Interface
+
+```bash
+# For Groq
+MODEL=groq chainlit run chainlit/app.py
+
+# For Ollama
+MODEL=ollama chainlit run chainlit/app.py
+```
+
+
 
 
 
