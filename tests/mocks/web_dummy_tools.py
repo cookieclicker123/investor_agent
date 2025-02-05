@@ -32,7 +32,7 @@ def create_dummy_web_agent() -> webAgentFn:
             query=query,
             search_results=dummy_results,
             relevant_results=dummy_results[:2],  # Simulate relevance filtering
-            generated_at=datetime.now()
+            generated_at=datetime.now().isoformat()  # Convert datetime to ISO format string
         )
     
     return dummy_web_search 
