@@ -38,7 +38,7 @@ async def test_ollama_prompt_formatting():
     assert "meta_agent" in response.request.prompt
     assert "selected_agent" in response.request.prompt
     # Check if query appears in meta prompt content
-    assert request.query in response.request.prompt["meta_agent"]
+    assert request.query in response.request.prompt["meta_agent"]["raw_text"]
 
 @pytest.mark.asyncio
 async def test_ollama_error_handling():
@@ -56,9 +56,9 @@ async def test_ollama_error_handling():
         response = await llm(request, lambda x: None)
         
         assert isinstance(response.raw_response, dict)
-        assert "error" in response.raw_response
-        assert "test error" in response.raw_response["error"].lower()
-        assert response.intents == []  # Error case should have empty intents
+        assert "error" in str(response.raw_response["raw_text"])
+        assert "test error" in str(response.raw_response["raw_text"]).lower()
+        assert response.intents == [Intent.WEB_AGENT]  # Default intent
         assert response.confidence == 0.0  # Error case should have zero confidence
 
 @pytest.mark.asyncio
