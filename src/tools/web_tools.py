@@ -23,6 +23,15 @@ def create_web_search() -> webAgentFn:
     
     async def web_search(query: str) -> WebAgentResponse:
         """Perform web search using Serper API"""
+        if not query.strip():  # Handle empty query
+            return WebAgentResponse(
+                query=query,
+                search_results=[],
+                relevant_results=[],
+                generated_at=datetime.now().isoformat(),
+                error="Empty query provided"
+            )
+
         cache_key = query
         
         if is_cache_valid(cache_key):
@@ -63,6 +72,12 @@ def create_web_search() -> webAgentFn:
             return web_response
             
         except Exception as e:
-            raise Exception(f"Error fetching search results: {str(e)}")
+            return WebAgentResponse(
+                query=query,
+                search_results=[],
+                relevant_results=[],
+                generated_at=datetime.now().isoformat(),
+                error=str(e)
+            )
     
     return web_search 

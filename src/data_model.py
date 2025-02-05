@@ -69,6 +69,7 @@ class WebAgentResponse(BaseModel):
     search_results: List[SearchResult]
     relevant_results: List[SearchResult]
     generated_at: Optional[str] = None
+    error: Optional[str] = None
 
 class StockPrice(BaseModel):
     """Current stock price and trading data"""
