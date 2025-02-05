@@ -72,17 +72,13 @@ async def main(message: cl.Message):
                         print("\n=== Received complete response ===")  # Debug print
                         complete_response = data['content']
                         
-                        # Debug prints for response content
-                        print(f"Response type: {type(complete_response)}")
-                        print(f"Response keys: {complete_response.keys() if isinstance(complete_response, dict) else 'Not a dict'}")
-                        
                         try:
-                            # Create step using context manager instead
-                            print("\nCreating step with context manager...")  # Debug print
+                            print("\nCreating step with JSON formatting...")  # Debug print
                             async with cl.Step(name="Complete Response") as step:
                                 print("Setting step output...")  # Debug print
-                                formatted_json = json.dumps(complete_response, indent=2)
-                                step.output = formatted_json
+                                # Format with code block markers and language specification
+                                formatted_output = f"```json\n{json.dumps(complete_response, indent=2)}\n```"
+                                step.output = formatted_output
                                 print("Step output set")  # Debug print
                             
                         except Exception as step_error:
