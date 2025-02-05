@@ -2,21 +2,18 @@ from typing import Optional
 from datetime import datetime
 from src.data_model import FinanceAgentResponse, financeAgentFn
 from src.tools.finance_tools import finance_search
-from tests.mocks.finance_dummy_tools import dummy_finance_search
 
-def create_finance_agent(use_dummy: bool = True) -> financeAgentFn:
+def create_finance_agent() -> financeAgentFn:
     """
     Factory function that returns a finance agent function
     
-    Args:
-        use_dummy (bool): Whether to use dummy data (default: True)
-        
+    Returns:
     Returns:
         financeAgentFn: Function that processes finance queries
     """
     
     # Select the appropriate search function
-    search_fn = dummy_finance_search if use_dummy else finance_search
+    search_fn = finance_search
     
     def process_finance_query(query: str) -> FinanceAgentResponse:
         """
