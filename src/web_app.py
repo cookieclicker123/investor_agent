@@ -1,8 +1,8 @@
 from fastapi import FastAPI
-from fastapi.responses import JSONResponse, StreamingResponse
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 import json
-from typing import AsyncGenerator, Callable
+from typing import AsyncGenerator
 from asyncio import Queue
 import asyncio
 
