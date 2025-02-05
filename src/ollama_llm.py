@@ -130,7 +130,7 @@ def create_ollama_llm() -> llmFn:
                 model_provider=config["provider"],
                 time_in_seconds=time.time() - start_time,
                 intents=intents,
-                confidence=0.8,
+                confidence=0.0,
                 pdf_context=pdf_context,
                 web_context=web_context,
                 finance_context=None
