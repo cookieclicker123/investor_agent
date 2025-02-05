@@ -5,6 +5,7 @@ from src.llms.ollama import create_ollama_client
 from src.agents.meta_agent import analyze_query
 from utils.config import get_ollama_config
 from src.agents.pdf_agent import create_pdf_agent
+from src.agents.web_agent import create_web_agent
 from src.prompts.prompts import (
     META_AGENT_PROMPT,
     WEB_AGENT_PROMPT,
@@ -12,8 +13,8 @@ from src.prompts.prompts import (
     FINANCE_AGENT_PROMPT
 )
 import logging
-import time
-from src.agents.web_agent import create_web_agent
+
+
 
 logger = logging.getLogger(__name__)
 
@@ -121,9 +122,6 @@ def create_ollama_llm() -> llmFn:
             else:
                 raw_response = {"raw_text": str(llm_response.raw_response)}
             
-            # Add web context to response
-            llm_response.web_context = web_context
-            
             return LLMResponse(
                 generated_at=datetime.datetime.now().isoformat(),
                 request=llm_request,
@@ -133,7 +131,9 @@ def create_ollama_llm() -> llmFn:
                 time_in_seconds=time.time() - start_time,
                 intents=intents,
                 confidence=0.8,
-                pdf_context=pdf_context
+                pdf_context=pdf_context,
+                web_context=web_context,
+                finance_context=None
             )
 
         except Exception as e:
