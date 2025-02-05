@@ -266,6 +266,7 @@ pytest tests/test_dummy_web_agent.py
 pytest tests/test_web_agent.py
 pytest tests/test_dummy_finance_agent.py
 pytest tests/test_finance_agent.py
+pytest tests/test_server.py
 
 # run all tests
 pytest tests
@@ -280,6 +281,48 @@ python app.py --model llama3.2:3b
 
 python app.py --model deepseek-r1-distill-llama-70b
 ```
+
+
+## Build and Run with Docker
+
+### CLI Interface (Interactive)
+
+```bash
+# Run with Ollama (default)
+docker compose run --rm -i investor-agent python app.py
+
+# Run with Groq
+docker compose --env-file .env run --rm -i investor-agent python app.py --model deepseek-r1-distill-llama-70b
+
+# Run with Mock LLM
+docker compose run --rm -i investor-agent python app.py --mock
+```
+
+### API Server
+
+```bash
+# Start the API server with Ollama
+docker compose up --build
+
+# Start with Groq
+MODEL=groq docker compose --env-file .env up --build
+
+# Start with Mock LLM
+MODEL=mock docker compose up --build
+
+# Test the API endpoint
+curl -X POST http://localhost:8006/query \
+  -H "Content-Type: application/json" \
+  -H "Accept: text/event-stream" \
+  -d '{"query":"How do options trading work?"}'               
+```
+
+The FastAPI server runs on port 8006 and connects to Ollama running on your host machine. You can also access the API documentation at:
+```
+http://localhost:8006/docs
+```
+
+Note: Ensure Ollama is running on your host machine before using the Ollama model.
 
 
 
