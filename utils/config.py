@@ -7,18 +7,18 @@ load_dotenv()
 def get_ollama_config():
     """Get Ollama LLM configuration."""
     return {
-        "model_name": "llama3.2:3b",
+        "model_name": os.getenv("OLLAMA_MODEL", "llama3.2:3b"),
         "temperature": 0.7,
         "max_tokens": 4096,
         "provider": "ollama",
-        "url": "http://localhost:11434/api/generate",
+        "url": os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/api/generate"),
         "display_name": "Local (Ollama LLaMA 3.2)"
     } 
 
 def get_groq_config():
     """Get Groq LLM configuration."""
     return {
-        "model_name": "deepseek-r1-distill-llama-70b",
+        "model_name": os.getenv("GROQ_MODEL_NAME", "deepseek-r1-distill-llama-70b"),
         "temperature": 0.7,
         "max_tokens": 4096,
         "provider": "groq",

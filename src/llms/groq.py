@@ -6,6 +6,7 @@ import json
 import logging
 import ssl
 import certifi
+import asyncio
 
 from src.data_model import LLMRequest, LLMResponse, llmFn
 from utils.config import get_groq_config
@@ -17,10 +18,10 @@ async def make_groq_request(
     prompt: str,
     api_key: str,
     temperature: float,
-    max_tokens: int
+    max_tokens: int,
+    on_chunk: Callable[[str], None]
 ) -> AsyncIterator[str]:
-    """Helper function to make requests to Groq API"""
-    logger.debug("Starting Groq request...")
+    """Stream response from Groq API."""
     ssl_context = ssl.create_default_context(cafile=certifi.where())
     
     async with aiohttp.ClientSession() as session:
@@ -39,18 +40,14 @@ async def make_groq_request(
             },
             ssl=ssl_context
         ) as response:
-            logger.debug(f"Response status: {response.status}")
             if response.status != 200:
                 error_text = await response.text()
-                logger.error(f"Error response: {error_text}")
                 raise Exception(f"Groq API error (status {response.status}): {error_text}")
 
+            # Match Ollama's pattern exactly
             async for line in response.content:
                 if line:
                     line = line.decode().strip()
-                    logger.debug(f"Raw line: {line}")
-                    
-                    # Skip empty lines and [DONE] message
                     if not line or line == 'data: [DONE]':
                         continue
                         
@@ -58,13 +55,14 @@ async def make_groq_request(
                         try:
                             data = json.loads(line[6:])
                             if content := data['choices'][0].get('delta', {}).get('content'):
-                                logger.debug(f"Yielding content: {content}")
-                                yield content
-                        except json.JSONDecodeError as e:
-                            logger.error(f"JSON decode error on line: {line}")
-                            continue
-                        except (KeyError, IndexError) as e:
-                            logger.error(f"Error processing line structure: {e}")
+                                # Match Ollama's response format
+                                response_data = {"response": content}
+                                if "response" in response_data:
+                                    chunk = response_data["response"]
+                                    on_chunk(chunk)
+                                    yield chunk
+                        except Exception as e:
+                            logger.error(f"Error processing chunk: {e}")
                             continue
 
 def create_groq_client() -> llmFn:
@@ -78,7 +76,6 @@ def create_groq_client() -> llmFn:
         start_time = time.time()
         chunks = []
         
-        # Add logging before chunks processing
         logger.debug("=== Starting Chunk Processing ===")
         logger.debug(f"Initial chunks array: {chunks}")
         
@@ -95,27 +92,24 @@ def create_groq_client() -> llmFn:
                 prompt,
                 config["api_key"],
                 config["temperature"],
-                config["max_tokens"]
+                config["max_tokens"],
+                on_chunk
             ):
                 logger.debug(f"Received chunk type: {type(chunk)}")
                 logger.debug(f"Chunk content: {chunk}")
                 chunks.append(chunk)
                 logger.debug(f"Passing to on_chunk: {type(chunk)}, content: {chunk}")
-                on_chunk(chunk)
             
-            # Log the assembled response
             logger.debug("=== Assembling Final Response ===")
             logger.debug(f"All chunks collected: {chunks}")
             response = ''.join(chunks)
             logger.debug(f"Joined response type: {type(response)}")
             logger.debug(f"Joined response content: {response}")
             
-            # Log the wrapping in raw_text dict
             raw_response = {"raw_text": response}
             logger.debug(f"Wrapped response type: {type(raw_response)}")
             logger.debug(f"Wrapped response content: {raw_response}")
             
-            # Add Pydantic validation debugging
             logger.debug("=== Pydantic Validation ===")
             logger.debug(f"Data going into LLMResponse - type: {type(raw_response)}")
             logger.debug(f"Data going into LLMResponse - content: {raw_response}")
