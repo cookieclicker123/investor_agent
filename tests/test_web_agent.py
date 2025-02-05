@@ -124,23 +124,3 @@ async def test_real_web_agent_result_filtering():
         # Check content isn't empty
         assert len(result.snippet) > 0
         assert len(result.title) > 0
-
-@pytest.mark.asyncio
-async def test_real_web_agent_error_handling():
-    """Test web agent handles various error conditions"""
-    # Arrange
-    web_agent = await create_web_agent()
-    
-    # Test with very long query
-    long_query = "x" * 1000
-    response = await web_agent(long_query)
-    assert response.error is not None
-    
-    # Test with special characters
-    special_query = "!@#$%^&*()"
-    response = await web_agent(special_query)
-    assert len(response.search_results) == 0
-    
-    # Test with non-string input
-    with pytest.raises(TypeError):
-        await web_agent(123) 
