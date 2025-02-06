@@ -19,6 +19,32 @@ if MODEL not in ["groq", "ollama"]:
 # Create client from our configured FastAPI server
 client = TestClient(app)
 
+@cl.set_starters
+async def set_starters():
+    """Define starter questions for investor queries."""
+    return [
+        cl.Starter(
+            label="TSLA Market Sentiment",
+            message="What is the current market sentiment on TSLA?",
+            icon="/public/production_2.svg",
+        ),
+        cl.Starter(
+            label="TSLA Earnings Details",
+            message="Show me the latest earnings report details for TSLA.",
+            icon="/public/Tanooki.svg",
+        ),
+        cl.Starter(
+            label="TSLA Options Strategies",
+            message="How do advanced options strategies work for TSLA?",
+            icon="/public/TV.svg",
+        ),
+        cl.Starter(
+            label="TSLA Competitive Edge",
+            message="Summarize the key competitive advantages of TSLA.",
+            icon="/public/production.svg",
+        )
+    ]
+
 @cl.on_chat_start
 async def start():
     """Initialize chat session"""
@@ -44,7 +70,7 @@ async def main(message: cl.Message):
     await msg.send()
 
     try:
-        # Send query to server - use message.content
+        # Send query to server—use message.content
         with client.stream('POST', endpoint, json={"query": message.content}) as response:
             if response.status_code != 200:
                 await msg.update(content=f"Error: {response.status_code}")
