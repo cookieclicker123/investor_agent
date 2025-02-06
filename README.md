@@ -1,5 +1,20 @@
 # Investor Agent
 
+## Demo
+<div align="center">
+  <a href="https://www.loom.com/share/be7f7f5eabb44d268210458fbadd7f23?sid=3924c278-ef63-4d92-be29-fddc613e21d7">
+    <p>Investor Agent Demo - Watch Video</p>
+  </a>
+  <iframe src="https://www.loom.com/share/be7f7f5eabb44d268210458fbadd7f23?sid=3924c278-ef63-4d92-be29-fddc613e21d7"
+    width="640"
+    height="360"
+    frameborder="0"
+    webkitallowfullscreen
+    mozallowfullscreen
+    allowfullscreen>
+  </iframe>
+</div>
+
 ## Table of Contents
 
 1. [Project Vision: Goals + Purpose](#project-vision-goals--purpose)
