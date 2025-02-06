@@ -2,17 +2,9 @@
 
 ## Demo
 <div align="center">
-  <a href="https://www.loom.com/share/be7f7f5eabb44d268210458fbadd7f23?sid=3924c278-ef63-4d92-be29-fddc613e21d7">
-    <p>Investor Agent Demo - Watch Video</p>
-  </a>
-  <iframe src="https://www.loom.com/share/be7f7f5eabb44d268210458fbadd7f23?sid=3924c278-ef63-4d92-be29-fddc613e21d7"
-    width="640"
-    height="360"
-    frameborder="0"
-    webkitallowfullscreen
-    mozallowfullscreen
-    allowfullscreen>
-  </iframe>
+  <img src="public/app.jpg" alt="Investor Agent Interface" width="800"/>
+  
+  ### [Watch Full Demo Video](https://www.loom.com/share/https://www.loom.com/share/be7f7f5eabb44d268210458fbadd7f23?sid=fbc3430a-4dd2-436c-a93c-f24305dedab5)
 </div>
 
 ## Table of Contents
