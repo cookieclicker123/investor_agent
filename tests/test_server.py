@@ -18,7 +18,7 @@ project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(project_root)
 
 from src.web_app import create_web_app
-from .mocks.mock_llm import create_mock_llm_client
+from mocks.mock_llm import create_mock_llm_client
 
 # Simple mock responses
 MOCK_RESPONSES = {
