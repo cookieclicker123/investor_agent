@@ -11,11 +11,12 @@
 
 1. [Project Vision: Goals + Purpose](#project-vision-goals--purpose)
 2. [Design Principles](#design-principles)
-3. [Repo Structure](#repo-structure)
+3. [Rough Repo Structure](#repo-structure)
 4. [Development Roadmap](#development-roadmap)
 5. [Setup](#setup)
 6. [Run pytests to confirm each component works](#run-pytests-to-confirm-each-component-works)
-7. [Run the app.py script to test the LLM without the UI, or the mock LLM](#run-the-apppy-script-to-test-the-llm-without-the-ui-or-the-mock-llm)
+7. [Build and Run with Docker](#build-and-run-with-docker)
+8. [Chainlit Interface](#chainlit-interface)
 
 
 ## Project Vision: Goals + Purpose
@@ -71,7 +72,7 @@ This project will use **cutting edge LLMs** and **bespoke agent orchestration** 
    - Clear dependency flows
    - Easy to modify and extend
 
-## Repo Structure
+## Rough Repo Structure
 
 ```
 investor-agent/
@@ -225,6 +226,65 @@ Each phase builds upon the previous, maintaining our core principles of:
 - Functional design patterns
 - Robust error handling
 
+## Open Source Everything
+
+### The Challenge
+How do we build an engaging multi-agent workflow that's both practically useful AND serves as an educational framework? 
+
+### First Principles Over Frameworks
+This repo strips AI development down to its core. No heavyweight dependencies. No complex agent frameworks. Just:
+- A robust data model
+- A well-configured LLM
+- Great prompts and Orchaestration
+- Clean, testable code
+- Clear documentation
+
+### The Framework Fallacy
+Many tutorials suggest you need:
+- Langchain or similar frameworks
+- Complex wrappers around ChatGPT
+- Numerous third-party dependencies
+
+**They're wrong.**
+
+### Why Less is More
+By going back to first principles:
+- Code becomes transparent and "close to the metal"
+- Systems are easier to understand and modify
+- Flexibility increases dramatically
+- Dependencies decrease significantly
+
+### Power of Good Design
+With proper architecture:
+- A 3B parameter model (Llama-3.2) can match GPT-4 for specialized tasks
+- Inference speeds improve dramatically
+- Costs drop to near-zero
+- Data remains private and secure
+- Small, expert models outperform general-purpose giants
+
+### Beyond Tutorials
+Most educational content neglects:
+- Proper software design principles
+- Scalability considerations
+- Real-world deployment challenges
+- Cost and performance optimization
+
+### The Real Goal
+This isn't just about building an investor agent. It's about demonstrating that:
+- You can build production-grade AI systems with minimal dependencies
+- Small, focused models can outperform larger, general ones
+- Good design trumps framework complexity
+- AI development is accessible without massive resources
+
+### Your Turn
+This demo should inspire you to:
+- Build custom agents for specific domains
+- Break free from framework dependencies
+- Focus on fundamentals over fancy tools
+- Create efficient, scalable AI solutions
+
+Take this code. Improve it. Make it your own. That's how great AI products are born.
+
 ## Setup
 
 ```bash
@@ -288,6 +348,9 @@ python app.py --model llama3.2:3b
 
 python app.py --model deepseek-r1-distill-llama-70b
 ```
+
+### Check out the FastAPI Documentation When app is running. feel free to extend it to your liking
+http://0.0.0.0:8006/docs
 
 
 ## Build and Run with Docker
