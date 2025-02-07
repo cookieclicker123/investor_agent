@@ -22,27 +22,27 @@ client = TestClient(app)
 
 @cl.set_starters
 async def starters():
-    """Define starter questions for investor queries."""
+    """Define starter questions across various topics."""
     return [
         cl.Starter(
-            label="TSLA Market Sentiment",
-            message="What is the current market sentiment on TSLA?",
-            icon="/public/production_2.svg",
+            label="Crypto Analysis",
+            message="How is Bitcoin performing against other cryptocurrencies?",
+            icon="/public/money.svg",
         ),
         cl.Starter(
-            label="TSLA Earnings Details",
-            message="Show me the latest earnings report details for TSLA.",
-            icon="/public/Tanooki.svg",
+            label="Options Basics",
+            message="Explain how put options work with a simple example.",
+            icon="/public/report.svg",
         ),
         cl.Starter(
-            label="TSLA Options Strategies",
-            message="How do advanced options strategies work for TSLA?",
-            icon="/public/TV.svg",
+            label="Tech Sector",
+            message="Compare the AI strategies of NVIDIA, MSFT, and GOOGL.",
+            icon="/public/rocket.svg",
         ),
         cl.Starter(
-            label="TSLA Competitive Edge",
-            message="Summarize the key competitive advantages of TSLA.",
-            icon="/public/production.svg",
+            label="Economic Indicators",
+            message="What do the latest inflation numbers mean for interest rates?",
+            icon="/public/chart.svg",
         )
     ]
 
@@ -64,32 +64,38 @@ async def main(message: cl.Message):
     """Handle incoming messages"""
     print(f"Received message: {message.content}")
 
-    # Single async function to handle message creation and animation
-    async def show_loading_message():
-        msg = cl.Message(content="**📊Processing query**")
-        await msg.send()
-        print("Message created with loading animation starting")  # Debug print
-        
+    # Create loading message
+    loading_msg = cl.Message(content="**📊Processing query**")
+    await loading_msg.send()
+    print("Loading message created")
+
+    # Create separate response message
+    response_msg = cl.Message(content="")
+    await response_msg.send()
+    print("Response message created")
+
+    # Animation task for loading message
+    async def animate_loading():
         try:
             while True:
                 for i in range(4):
-                    msg.content = "**📊Processing query**" + "." * i
-                    await msg.update()
+                    loading_msg.content = "**📊Processing query**" + "." * i
+                    await loading_msg.update()
                     await asyncio.sleep(0.25)
         except asyncio.CancelledError:
-            print("Loading animation cancelled")  # Debug print
-            return msg
+            print("Animation cancelled")
+            await loading_msg.remove()
 
-    # Start the loading message and get the message object
-    loading_task = asyncio.create_task(show_loading_message())
-    msg = await loading_task
+    # Start animation without awaiting
+    loading_task = asyncio.create_task(animate_loading())
+    print("Animation started")
 
     try:
         endpoint = f"/{MODEL}/query"
         with client.stream('POST', endpoint, json={"query": message.content}) as response:
             if response.status_code != 200:
                 loading_task.cancel()
-                await msg.update(content=f"Error: {response.status_code}")
+                await response_msg.update(content=f"Error: {response.status_code}")
                 return
 
             complete_response = {}
@@ -110,9 +116,9 @@ async def main(message: cl.Message):
                     
                     if data['type'] == 'chunk':
                         if first_chunk:
-                            loading_task.cancel()
+                            loading_task.cancel()  # Stop animation when response starts
                             first_chunk = False
-                        await msg.stream_token(data['content'])
+                        await response_msg.stream_token(data['content'])
                     elif data['type'] == 'complete':
                         complete_response = data['content']
                         async with cl.Step(name="Complete Response") as step:
@@ -124,7 +130,7 @@ async def main(message: cl.Message):
                             
     except Exception as e:
         print(f"Error in main handler: {e}")
-        await msg.update(content=f"Error: {str(e)}")
+        await response_msg.update(content=f"Error: {str(e)}")
     finally:
         if not loading_task.done():
             loading_task.cancel() 
