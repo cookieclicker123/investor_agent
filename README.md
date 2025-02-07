@@ -293,6 +293,11 @@ cd investor-agent
 python3.11 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+touch .env
+#Aquire Groq console, Google Serper API and Alpha Vantage API keys on their respective websites and place them in .env:
+GROQ_API_KEY='your_api_key_here'
+SERPER_API_KEY='your_api_key_here'
+ALPHA_VANTAGE_API_KEY='your_api_key_here'
 ```
 
 Refer to the **examples folder first** to see how to use the LLM pipeline, data model, and intent extraction, without all the moving parts of the real llms, agents, tools, and frontend
