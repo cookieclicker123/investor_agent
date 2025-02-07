@@ -4,7 +4,7 @@
 <div align="center">
   <img src="public/app.jpg" alt="Investor Agent Interface" width="800"/>
   
-  ### [Watch Full Demo Video](https://www.loom.com/share/be7f7f5eabb44d268210458fbadd7f23)
+  ### [Watch Full Demo Video](https://www.loom.com/share/3cbdfdc7d6e54bb8a522080198fceebb?sid=0d76aa6a-4ccb-4c0d-9064-94ca157dd9bd)
 </div>
 
 ## Table of Contents
