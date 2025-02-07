@@ -6,3 +6,4 @@ __pycache__
 examples/mock_llm/tests/fixtures
 .DS_Store
 .chainlit
+.env
