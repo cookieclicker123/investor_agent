@@ -116,6 +116,6 @@ def similarity_search(
     return results
 
 if __name__ == "__main__":
-    text_folder = "./tmp/processed"
-    index_path = "./tmp/indexes"
+    text_folder = "./server/tmp/processed"
+    index_path = "./server/tmp/indexes"
     create_faiss_index(text_folder, index_path)

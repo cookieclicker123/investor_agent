@@ -1,9 +1,8 @@
 import pytest
-from src.groq_llm import create_groq_llm
-from src.ollama_llm import create_ollama_llm
-from tests.mocks.pdf_dummy_agent import PDFDummyAgent
-from src.data_model import PDFContext, PDFAgentResponse, LLMRequest, LLMResponse
-from src.data_model import Intent
+from server.src.groq_llm import create_groq_llm
+from server.tests.mocks.pdf_dummy_agent import PDFDummyAgent
+from server.src.data_model import PDFContext, PDFAgentResponse, LLMRequest, LLMResponse
+from server.src.data_model import Intent
 
 @pytest.mark.asyncio
 async def test_llm_with_pdf_context():

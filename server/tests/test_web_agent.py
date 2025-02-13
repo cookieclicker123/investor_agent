@@ -1,12 +1,10 @@
 import pytest
-import asyncio
 from datetime import datetime
-from src.data_model import (
+from server.src.data_model import (
     WebAgentResponse, SearchResult,
     LLMResponse, LLMRequest, Intent
 )
-from src.agents.web_agent import create_web_agent
-from src.tools.web_tools import create_web_search
+from server.src.agents.web_agent import create_web_agent
 
 @pytest.mark.asyncio
 async def test_real_web_agent_basic_query():

@@ -10,7 +10,7 @@ def create_pdf_agent() -> pdfAgentFn:
     """Factory function to create PDF agent functionality"""
     
     # Initialize index path at creation time
-    index_path = "./tmp/indexes"
+    index_path = "server/tmp/indexes"
     logger.debug(f"Initializing PDF agent with index: {index_path}")
     
     async def process_query(query: str) -> Optional[PDFAgentResponse]:

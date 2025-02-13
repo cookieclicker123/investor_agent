@@ -1,6 +1,6 @@
 import pytest
-from src.agents.pdf_agent import create_pdf_agent
-from src.data_model import PDFAgentResponse, PDFContext
+from server.src.agents.pdf_agent import create_pdf_agent
+from server.src.data_model import PDFAgentResponse, PDFContext
 
 @pytest.mark.asyncio
 async def test_pdf_agent_response_shape():

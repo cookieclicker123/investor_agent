@@ -1,8 +1,8 @@
 import pytest
 import logging
-from src.data_model import LLMRequest, Intent
-from src.ollama_llm import create_ollama_llm
-from src.groq_llm import create_groq_llm
+from server.src.data_model import LLMRequest, Intent
+from server.src.ollama_llm import create_ollama_llm
+from server.src.groq_llm import create_groq_llm
 
 logger = logging.getLogger(__name__)
 

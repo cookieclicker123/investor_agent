@@ -1,6 +1,6 @@
 from typing import Optional
-from src.data_model import webAgentFn, WebAgentResponse
-from tests.mocks.web_dummy_tools import create_dummy_web_agent
+from server.src.data_model import webAgentFn, WebAgentResponse
+from server.tests.mocks.web_dummy_tools import create_dummy_web_agent
 
 async def create_web_agent(web_search_fn: Optional[webAgentFn] = None) -> webAgentFn:
     """Factory function that creates a web agent using provided or dummy search function"""

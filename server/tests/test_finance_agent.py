@@ -5,11 +5,11 @@ DO NOT RUN THIS TEST TOO MANY API CALLS FIXING IT. 15 only get 25 calls a day on
 import pytest
 import os
 from datetime import datetime
-from src.data_model import (
+from server.src.data_model import (
     FinanceAgentResponse, StockData,
     LLMResponse, LLMRequest, Intent
 )
-from src.agents.finance_agent import create_finance_agent
+from server.src.agents.finance_agent import create_finance_agent
 
 @pytest.fixture(autouse=True)
 def check_api_key():

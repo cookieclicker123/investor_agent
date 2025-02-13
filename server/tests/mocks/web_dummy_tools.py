@@ -1,6 +1,5 @@
 from datetime import datetime
-from typing import Callable
-from src.data_model import SearchResult, WebAgentResponse, webAgentFn
+from server.src.data_model import SearchResult, WebAgentResponse, webAgentFn
 
 def create_dummy_web_agent() -> webAgentFn:
     """Factory function that returns a dummy web agent function"""

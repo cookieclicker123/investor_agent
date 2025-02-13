@@ -1,7 +1,6 @@
-from typing import Optional
 from datetime import datetime
-from src.data_model import FinanceAgentResponse, financeAgentFn
-from tests.mocks.finance_dummy_tools import dummy_finance_search
+from server.src.data_model import FinanceAgentResponse, financeAgentFn
+from server.tests.mocks.finance_dummy_tools import dummy_finance_search
 
 def create_finance_agent(use_dummy: bool = True) -> financeAgentFn:
     """

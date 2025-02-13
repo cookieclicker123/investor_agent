@@ -347,8 +347,6 @@ pytest tests
 ## Run the app.py script to test the LLM without the UI, or test the mock LLM
 
 ```bash
-python server/app.py --mock
-
 python server/app.py --model llama3.2:3b
 
 python server/app.py --model deepseek-r1-distill-llama-70b
@@ -390,6 +388,31 @@ MODEL=ollama  uvicorn server.src.server:app --host 0.0.0.0 --port 8006
 
 # Terminal 2 - Chainlit
 MODEL=ollama chainlit run client/chainlit/app.py --port 8000
+```
+
+## Run the server
+
+```bash
+# Create index without langchain
+python app.py index
+
+# Then create index with langchain
+python app.py index --use-langchain
+
+# Run tests (as before)
+python app.py test
+python app.py test --test-type indexing
+python app.py test --test-type similarity
+
+# Run terminal app (as before)
+python app.py terminal
+```
+
+
+## Run the client
+
+```bash
+python app.py client
 ```
 
 

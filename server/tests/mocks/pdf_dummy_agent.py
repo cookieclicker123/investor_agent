@@ -1,5 +1,5 @@
-from src.data_model import PDFAgentResponse
-from .pdf_dummy_tools import query_documents
+from server.src.data_model import PDFAgentResponse
+from server.tests.mocks.pdf_dummy_tools import query_documents
 
 class PDFDummyAgent:
     def process_query(self, query: str) -> PDFAgentResponse:
