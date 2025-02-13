@@ -1,3 +1,4 @@
+import os
 import datetime
 import time
 import logging
@@ -8,7 +9,6 @@ from src.agents.pdf_agent import create_pdf_agent
 from src.agents.meta_agent import analyze_query
 from src.agents.web_agent import create_web_agent
 from src.agents.finance_agent import create_finance_agent
-from utils.config import get_groq_config
 from src.prompts.prompts import (
     META_AGENT_PROMPT,
     WEB_AGENT_PROMPT,
@@ -22,8 +22,19 @@ def create_groq_llm() -> llmFn:
     """Factory function to create a Groq LLM client with our prompts."""
     
     logger.debug("Creating Groq LLM client")
-    config = get_groq_config()
-    generate_llm_response = create_groq_client()
+    
+    # At the top where we create the client, store the values
+    model_name = os.getenv("GROQ_MODEL_NAME", "deepseek-r1-distill-llama-70b")
+    provider = "groq"
+    
+    generate_llm_response = create_groq_client(
+        model_name=model_name,
+        api_key=os.getenv("GROQ_API_KEY"),
+        temperature=0.7,
+        max_tokens=4096,
+        provider=provider,
+        display_name="Groq (DeepSeek R1 Distill LLaMA 70B)"
+    )
 
     async def complete_prompt(
         llm_request: LLMRequest,
@@ -33,12 +44,7 @@ def create_groq_llm() -> llmFn:
         try:
             start_time = time.time()
             
-            # Before creating response
-            logger.debug("=== Type Analysis ===")
-            logger.debug(f"Request type: {type(llm_request)}")
-            logger.debug(f"Request prompt type: {type(llm_request.prompt)}")
-            
-            # First get meta agent response
+            # Meta agent analysis
             meta_request = LLMRequest(
                 query=llm_request.query,
                 prompt=META_AGENT_PROMPT.format(
@@ -52,10 +58,9 @@ def create_groq_llm() -> llmFn:
             
             meta_response = await generate_llm_response(
                 llm_request=meta_request,
-                on_chunk=lambda x: None  # Silent for meta analysis
+                on_chunk=lambda x: None
             )
             
-            # Analyze query to get intents
             intents = await analyze_query(
                 llm_response=meta_response,
                 query=llm_request.query
@@ -81,9 +86,8 @@ def create_groq_llm() -> llmFn:
                 except Exception as finance_error:
                     logger.error(f"Finance agent error: {finance_error}")
                     finance_context = None
-                    # Don't remove the intent - let the LLM still try to handle it
             
-            # Build agent prompts based on detected intents
+            # Build agent prompts
             agent_prompts = []
             if Intent.PDF_AGENT in intents:
                 agent_prompts.append(PDF_AGENT_PROMPT.format(
@@ -104,10 +108,7 @@ def create_groq_llm() -> llmFn:
                     query=llm_request.query
                 ))
             
-            # Combine prompts if multiple agents
             combined_prompt = "\n\n".join(agent_prompts)
-            
-            # Update request with prompts
             llm_request.prompt = {
                 "meta_agent": meta_response.raw_response,
                 "selected_agent": combined_prompt
@@ -116,28 +117,23 @@ def create_groq_llm() -> llmFn:
             if on_chunk is None:
                 on_chunk = lambda x: None
 
-            # Get final response
             llm_response = await generate_llm_response(
                 llm_request=llm_request,
                 on_chunk=on_chunk
             )
             
-            # After getting response from Groq
-            logger.debug(f"Raw response from Groq: {type(llm_response.raw_response)}")
-            logger.debug(f"Response content structure: {llm_response.raw_response}")
-            
-            # Ensure response is always a dict with raw_text
-            if isinstance(llm_response.raw_response, dict) and 'raw_text' in llm_response.raw_response:
-                raw_response = llm_response.raw_response  # Already in correct format
-            else:
-                raw_response = {"raw_text": str(llm_response.raw_response)}  # Convert to correct format
+            raw_response = (
+                llm_response.raw_response 
+                if isinstance(llm_response.raw_response, dict) and 'raw_text' in llm_response.raw_response
+                else {"raw_text": str(llm_response.raw_response)}
+            )
             
             return LLMResponse(
                 generated_at=datetime.datetime.now().isoformat(),
                 request=llm_request,
                 raw_response=raw_response,
-                model_name=config["model_name"],
-                model_provider=config["provider"],
+                model_name=model_name,
+                model_provider=provider,
                 time_in_seconds=time.time() - start_time,
                 intents=intents,
                 confidence=0.8,
@@ -157,10 +153,10 @@ def create_groq_llm() -> llmFn:
                     "raw_text": "",
                     "error": str(e)
                 },
-                model_name=config["model_name"],
-                model_provider=config["provider"],
+                model_name=model_name,
+                model_provider=provider,
                 time_in_seconds=0.0,
-                intents=intents if 'intents' in locals() else [Intent.WEB_AGENT],  # Preserve intents if we have them
+                intents=intents if 'intents' in locals() else [Intent.WEB_AGENT],
                 confidence=0.0,
                 model="groq",
                 pdf_context=None,

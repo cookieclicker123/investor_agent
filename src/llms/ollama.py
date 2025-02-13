@@ -38,9 +38,15 @@ async def _stream_ollama_response(
                         on_chunk(chunk)
                         yield chunk
 
-def create_ollama_client() -> llmFn:
-    """Create an Ollama LLM client."""
-    config = get_ollama_config()
+def create_ollama_client(
+    model_name: str = "llama3.2:3b",
+    url: str = "http://localhost:11434/api/generate",
+    temperature: float = 0.7,
+    max_tokens: int = 4096,
+    provider: str = "ollama",
+    display_name: str = "Local (Ollama LLaMA 3.2)"
+) -> llmFn:
+    """Create an Ollama LLM client with provided config."""
     
     async def generate_response(
         llm_request: LLMRequest,
@@ -61,8 +67,8 @@ def create_ollama_client() -> llmFn:
             )
             
             async for chunk in _stream_ollama_response(
-                config["url"],
-                config["model_name"],
+                url,
+                model_name,
                 prompt,
                 on_chunk
             ):
@@ -83,8 +89,8 @@ def create_ollama_client() -> llmFn:
                 intents=[],
                 request=llm_request,
                 raw_response=raw_response,
-                model_name=config["model_name"],
-                model_provider=config["provider"],
+                model_name=model_name,
+                model_provider=provider,
                 time_in_seconds=round(time.time() - start_time, 2),
                 confidence=0.0
             )
@@ -96,8 +102,8 @@ def create_ollama_client() -> llmFn:
                 intents=[],
                 request=llm_request,
                 raw_response={"error": str(e)},
-                model_name=config["model_name"],
-                model_provider=config["provider"],
+                model_name=model_name,
+                model_provider=provider,
                 time_in_seconds=0.0,
                 confidence=0.0
             )
