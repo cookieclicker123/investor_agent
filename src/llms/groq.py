@@ -9,7 +9,6 @@ import certifi
 import asyncio
 
 from src.data_model import LLMRequest, LLMResponse, llmFn
-from utils.config import get_groq_config
 
 logger = logging.getLogger(__name__)
 
