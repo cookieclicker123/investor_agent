@@ -65,9 +65,15 @@ async def make_groq_request(
                             logger.error(f"Error processing chunk: {e}")
                             continue
 
-def create_groq_client() -> llmFn:
+def create_groq_client(
+    model_name: str,
+    api_key: str,
+    temperature: float = 0.7,
+    max_tokens: int = 4096,
+    provider: str = "groq",
+    display_name: str = "Groq (DeepSeek R1 Distill LLaMA 70B)"
+) -> llmFn:
     """Creates a direct streaming connection to Groq API"""
-    config = get_groq_config()
     
     async def generate_llm_response(
         llm_request: LLMRequest,
@@ -76,10 +82,6 @@ def create_groq_client() -> llmFn:
         start_time = time.time()
         chunks = []
         
-        logger.debug("=== Starting Chunk Processing ===")
-        logger.debug(f"Initial chunks array: {chunks}")
-        
-        # Get the appropriate prompt based on prompt type
         prompt = (
             llm_request.prompt["selected_agent"] 
             if isinstance(llm_request.prompt, dict) 
@@ -88,53 +90,39 @@ def create_groq_client() -> llmFn:
         
         try:
             async for chunk in make_groq_request(
-                config["model_name"],
-                prompt,
-                config["api_key"],
-                config["temperature"],
-                config["max_tokens"],
-                on_chunk
+                model_name=model_name,
+                prompt=prompt,
+                api_key=api_key,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                on_chunk=on_chunk
             ):
-                logger.debug(f"Received chunk type: {type(chunk)}")
-                logger.debug(f"Chunk content: {chunk}")
                 chunks.append(chunk)
-                logger.debug(f"Passing to on_chunk: {type(chunk)}, content: {chunk}")
             
-            logger.debug("=== Assembling Final Response ===")
-            logger.debug(f"All chunks collected: {chunks}")
             response = ''.join(chunks)
-            logger.debug(f"Joined response type: {type(response)}")
-            logger.debug(f"Joined response content: {response}")
-            
             raw_response = {"raw_text": response}
-            logger.debug(f"Wrapped response type: {type(raw_response)}")
-            logger.debug(f"Wrapped response content: {raw_response}")
             
-            logger.debug("=== Pydantic Validation ===")
-            logger.debug(f"Data going into LLMResponse - type: {type(raw_response)}")
-            logger.debug(f"Data going into LLMResponse - content: {raw_response}")
-                    
             return LLMResponse(
                 generated_at=datetime.datetime.now().isoformat(),
-                intents=[],
                 request=llm_request,
                 raw_response=raw_response,
-                model_name=config["model_name"],
-                model_provider=config["provider"],
+                model_name=model_name,
+                model_provider=provider,
                 time_in_seconds=round(time.time() - start_time, 2),
-                confidence=0.0
+                confidence=0.0,
+                intents=[]
             )
+            
         except Exception as e:
-            logger.error(f"Error in generate_llm_response: {str(e)}")
             return LLMResponse(
                 generated_at=datetime.datetime.now().isoformat(),
-                intents=[],
                 request=llm_request,
                 raw_response={"error": str(e)},
-                model_name=config["model_name"],
-                model_provider=config["provider"],
+                model_name=model_name,
+                model_provider=provider,
                 time_in_seconds=0.0,
-                confidence=0.0
+                confidence=0.0,
+                intents=[]
             )
-    
+
     return generate_llm_response
