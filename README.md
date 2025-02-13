@@ -16,13 +16,6 @@
 5. [Development Roadmap](#development-roadmap)
 6. [Open Source Everything](#open-source-everything)
 7. [Setup](#setup)
-8. [Create the PDF Index](#create-the-pdf-index)
-9. [Run Tests](#run-tests)
-10. [Test Similarity Search](#test-similarity-search)
-11. [Run the Application](#run-the-application)
-    - [Terminal Mode](#terminal-mode)
-    - [Web Interface](#web-interface)
-    - [API Documentation](#api-documentation)
 
 ## Project Vision: Goals + Purpose
 
