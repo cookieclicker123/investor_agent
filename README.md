@@ -1,3 +1,12 @@
+![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi)
+![FAISS](https://img.shields.io/badge/FAISS-B31B1B?style=for-the-badge)
+![Pydantic](https://img.shields.io/badge/Pydantic-E92063?style=for-the-badge&logo=pydantic)
+![Chainlit](https://img.shields.io/badge/Chainlit-1D1D1D?style=for-the-badge)
+![Transformers](https://img.shields.io/badge/Transformers-FFB000?style=for-the-badge)
+![Ollama](https://img.shields.io/badge/Ollama-000000?style=for-the-badge)
+![Groq](https://img.shields.io/badge/Groq-7B68EE?style=for-the-badge)
+![Python3.11](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
+
 # Investor Agent
 
 ## Demo
