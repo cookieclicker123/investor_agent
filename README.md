@@ -347,77 +347,49 @@ pytest tests
 ## Run the app.py script to test the LLM without the UI, or test the mock LLM
 
 ```bash
-python app.py --mock
+python server/app.py --mock
 
-python app.py --model llama3.2:3b
+python server/app.py --model llama3.2:3b
 
-python app.py --model deepseek-r1-distill-llama-70b
+python server/app.py --model deepseek-r1-distill-llama-70b
 ```
 
 ### Check out the FastAPI Documentation When app is running. feel free to extend it to your liking
+
 http://0.0.0.0:8006/docs
 
 
-## Build and Run with Docker
-
-### CLI Interface (Interactive)
-
-```bash
-# Run with Ollama (default)
-docker compose run --rm -i investor-agent python app.py
-
-# Run with Groq
-docker compose --env-file .env run --rm -i investor-agent python app.py --model deepseek-r1-distill-llama-70b
-
-# Run with Mock LLM
-docker compose run --rm -i investor-agent python app.py --mock
-```
-
-### API Server
-
-```bash
-# Start the API server with Ollama
-docker compose up --build
-
-# Start with Groq
-MODEL=groq docker compose --env-file .env up --build
-
-# Start with Mock LLM
-MODEL=mock docker compose up --build
-
-# Test the API endpoint
-curl -X POST http://localhost:8006/query \
-  -H "Content-Type: application/json" \
-  -H "Accept: text/event-stream" \
-  -d '{"query":"How do options trading work?"}'               
-```
-
-The FastAPI server runs on port 8006 and connects to Ollama running on your host machine. You can also access the API documentation at:
-```
-http://localhost:8006/docs
-```
 
 Note: Ensure Ollama is running on your host machine before using the Ollama model.
 
 
 ## Chainlit Interface
 
+```bash
+# Find processes using the ports
+lsof -i :8000
+lsof -i :8006
+
+# Kill them using their PID, make sure to use your actual process ID
+kill -9 <PID>
+```
+
 ### Groq
 ```bash
 # Terminal 1 - Server
-MODEL=groq  uvicorn src.server:app --host 0.0.0.0 --port 8006
+MODEL=groq  uvicorn server.src.server:app --host 0.0.0.0 --port 8006
 
 # Terminal 2 - Chainlit
-MODEL=groq chainlit run chainlit/app.py --port 8000
+MODEL=groq chainlit run client/chainlit/app.py --port 8000
 ```
 
 ### Ollama
 ```bash
 # Terminal 1 - Server
-MODEL=ollama  uvicorn src.server:app --host 0.0.0.0 --port 8006
+MODEL=ollama  uvicorn server.src.server:app --host 0.0.0.0 --port 8006
 
 # Terminal 2 - Chainlit
-MODEL=ollama chainlit run chainlit/app.py --port 8000
+MODEL=ollama chainlit run client/chainlit/app.py --port 8000
 ```
 
 
