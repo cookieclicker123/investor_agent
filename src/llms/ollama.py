@@ -5,7 +5,6 @@ import aiohttp
 import logging
 from typing import AsyncIterator, Callable
 from src.data_model import LLMRequest, LLMResponse, OnTextFn, llmFn
-from utils.config import get_ollama_config
 
 logger = logging.getLogger(__name__)
 
