@@ -1,0 +1,60 @@
+{
+  "request": {
+    "query": "Tell me the performance metrics of PLTR in the stock market this week",
+    "prompt": {
+      "meta_agent": "Analyze this query and determine the minimal necessary agents needed:\n\nPrevious Analysis History:\n\n\nAvailable Agents:\npdf_agent, web_agent, finance_agent\n\nQuery: Tell me the performance metrics of PLTR in the stock market this week\n\nDetected Intent:\n[<Intent.FINANCE_AGENT: 'finance_agent'>]\n\nFirst, classify the query type and complexity:\n1. PRICE_CHECK: Simple price or market data request (ONLY for specific stock symbols)\n2. EDUCATIONAL: Detailed learning or how-to request\n3. ANALYSIS: Complex market analysis request\n4. INFORMATIONAL: Basic information request\n\nComplexity Level:\n- BASIC: Simple, straightforward information\n- INTERMEDIATE: Requires some technical understanding\n- ADVANCED: Requires deep technical knowledge or multiple concepts\n\nThen, select ONLY the necessary agents:\n- pdf -> For educational/background knowledge\n- web -> For current context/news\n- finance -> ONLY for specific stock symbols like (AAPL) or TSLA\n\nCRITICAL RULES FOR AGENT SELECTION:\n1. ONLY use finance agent when query contains explicit stock symbols:\n   - Parentheses format: (AAPL), (MSFT), (GOOGL)\n   - Direct tickers: TSLA, NVDA, AMD\n2. General financial topics (rates, markets, trends) -> use web agent\n3. Market education/analysis without specific stocks -> use web + pdf\n\nExamples:\n\"What's (AAPL)'s price?\" \n-> Type: PRICE_CHECK\n-> Complexity: BASIC\n-> Agents: finance only\n\n\"How do I trade options?\"\n-> Type: EDUCATIONAL\n-> Complexity: INTERMEDIATE\n-> Agents: pdf, web\n\n\"Current interest rates impact?\"\n-> Type: ANALYSIS\n-> Complexity: INTERMEDIATE\n-> Agents: web only\n\n\"Compare (NVDA) and TSLA performance\"\n-> Type: PRICE_CHECK\n-> Complexity: INTERMEDIATE\n-> Agents: finance only\n\nRespond with:\nQUERY_TYPE: <type>\nCOMPLEXITY: <level>\nWORKFLOW:\nagent_name -> specific reason for using this agent\n(only include necessary agents)\n\nREASON: Brief explanation of workflow strategy and required depth",
+      "selected_agent": "You are an expert financial analyst.\n\nPrevious Market Analysis:\n\n\nCurrent Market Data:\n\n\nQuery: Tell me the performance metrics of PLTR in the stock market this week\n\nCRITICAL RULES:\n1. Reference previous analysis when relevant\n2. Highlight changes from previous assessments\n3. Format ALL dates as 'Month DD, YYYY'\n4. Maintain consistency with historical analysis\n\nAnalyze the provided market data and structure your response as follows:\n\nMARKET ANALYSIS:\n- Price Action: Current trends and movements\n- Key Metrics: Important financial indicators\n- Market Context: Broader market conditions\n\nTECHNICAL ASSESSMENT:\n- Price Levels: Support/resistance if relevant\n- Volume Analysis: Trading activity insights\n- Pattern Recognition: Notable chart patterns\n\nFUNDAMENTAL REVIEW:\n- Financial Health: Key ratios and metrics\n- Comparative Analysis: Sector/peer comparison\n- Risk Assessment: Notable concerns or strengths\n\nRESPONSE:\nProvide a clear, natural language summary that directly answers the query while incorporating your analysis.\n\nKeep your response clear and well-structured, but natural - avoid any special formatting."
+    },
+    "as_json": true
+  },
+  "response": {
+    "generated_at": "2025-02-05T20:48:20.347933",
+    "intents": [
+      "finance_agent"
+    ],
+    "request": {
+      "query": "Tell me the performance metrics of PLTR in the stock market this week",
+      "prompt": {
+        "meta_agent": "Analyze this query and determine the minimal necessary agents needed:\n\nPrevious Analysis History:\n\n\nAvailable Agents:\npdf_agent, web_agent, finance_agent\n\nQuery: Tell me the performance metrics of PLTR in the stock market this week\n\nDetected Intent:\n[<Intent.FINANCE_AGENT: 'finance_agent'>]\n\nFirst, classify the query type and complexity:\n1. PRICE_CHECK: Simple price or market data request (ONLY for specific stock symbols)\n2. EDUCATIONAL: Detailed learning or how-to request\n3. ANALYSIS: Complex market analysis request\n4. INFORMATIONAL: Basic information request\n\nComplexity Level:\n- BASIC: Simple, straightforward information\n- INTERMEDIATE: Requires some technical understanding\n- ADVANCED: Requires deep technical knowledge or multiple concepts\n\nThen, select ONLY the necessary agents:\n- pdf -> For educational/background knowledge\n- web -> For current context/news\n- finance -> ONLY for specific stock symbols like (AAPL) or TSLA\n\nCRITICAL RULES FOR AGENT SELECTION:\n1. ONLY use finance agent when query contains explicit stock symbols:\n   - Parentheses format: (AAPL), (MSFT), (GOOGL)\n   - Direct tickers: TSLA, NVDA, AMD\n2. General financial topics (rates, markets, trends) -> use web agent\n3. Market education/analysis without specific stocks -> use web + pdf\n\nExamples:\n\"What's (AAPL)'s price?\" \n-> Type: PRICE_CHECK\n-> Complexity: BASIC\n-> Agents: finance only\n\n\"How do I trade options?\"\n-> Type: EDUCATIONAL\n-> Complexity: INTERMEDIATE\n-> Agents: pdf, web\n\n\"Current interest rates impact?\"\n-> Type: ANALYSIS\n-> Complexity: INTERMEDIATE\n-> Agents: web only\n\n\"Compare (NVDA) and TSLA performance\"\n-> Type: PRICE_CHECK\n-> Complexity: INTERMEDIATE\n-> Agents: finance only\n\nRespond with:\nQUERY_TYPE: <type>\nCOMPLEXITY: <level>\nWORKFLOW:\nagent_name -> specific reason for using this agent\n(only include necessary agents)\n\nREASON: Brief explanation of workflow strategy and required depth",
+        "selected_agent": "You are an expert financial analyst.\n\nPrevious Market Analysis:\n\n\nCurrent Market Data:\n\n\nQuery: Tell me the performance metrics of PLTR in the stock market this week\n\nCRITICAL RULES:\n1. Reference previous analysis when relevant\n2. Highlight changes from previous assessments\n3. Format ALL dates as 'Month DD, YYYY'\n4. Maintain consistency with historical analysis\n\nAnalyze the provided market data and structure your response as follows:\n\nMARKET ANALYSIS:\n- Price Action: Current trends and movements\n- Key Metrics: Important financial indicators\n- Market Context: Broader market conditions\n\nTECHNICAL ASSESSMENT:\n- Price Levels: Support/resistance if relevant\n- Volume Analysis: Trading activity insights\n- Pattern Recognition: Notable chart patterns\n\nFUNDAMENTAL REVIEW:\n- Financial Health: Key ratios and metrics\n- Comparative Analysis: Sector/peer comparison\n- Risk Assessment: Notable concerns or strengths\n\nRESPONSE:\nProvide a clear, natural language summary that directly answers the query while incorporating your analysis.\n\nKeep your response clear and well-structured, but natural - avoid any special formatting."
+      },
+      "as_json": true
+    },
+    "raw_response": {
+      "answer": "It has performed very well because palentir will benefit from the open sourcing of models like deepseek-r1 to use as the base model in its own systems due to the open weights nature of the radical and innovative new model"
+    },
+    "model_name": "mock_llm",
+    "model_provider": "mock",
+    "time_in_seconds": 2.42,
+    "pdf_context": null,
+    "web_context": null,
+    "finance_context": null,
+    "confidence": 0.8
+  },
+  "chunks": [
+    "{\n  \"answe",
+    "r\": \"It ha",
+    "s performe",
+    "d very wel",
+    "l because ",
+    "palentir w",
+    "ill benefi",
+    "t from the",
+    " open sour",
+    "cing of mo",
+    "dels like ",
+    "deepseek-r",
+    "1 to use a",
+    "s the base",
+    " model in ",
+    "its own sy",
+    "stems due ",
+    "to the ope",
+    "n weights ",
+    "nature of ",
+    "the radica",
+    "l and inno",
+    "vative new",
+    " model\"\n}"
+  ]
+}
