@@ -288,7 +288,7 @@ Take this code. Improve it. Make it your own. That's how great AI products are b
 ## Setup
 
 ```bash
-git clone ...
+git clone git@github.com:cookieclicker123/investor_agent.git
 cd investor-agent
 python3.11 -m venv .venv
 source .venv/bin/activate
@@ -302,55 +302,6 @@ ALPHA_VANTAGE_API_KEY='your_api_key_here'
 
 Refer to the **examples folder first** to see how to use the LLM pipeline, data model, and intent extraction, without all the moving parts of the real llms, agents, tools, and frontend
 
-## Create the index for the pdf agent, with or without langchain dependencies
-
-```bash
-# without langchain dependencies
-python src/index/pdf_to_json.py
-python -m src.index.json_to_index
-
-# with langchain dependencies
-python src/langchain_index/pdf_to_json.py
-python -m src.langchain_index.json_to_index
-```
-
-## Run the index and similarity search tests with dummy pdf agent
-
-```bash
-pytest tests/test_indexing.py
-python -m tests.test_similarity_search
-
-```
-
-## Run pytests to confirm each component works
-
-```bash
-pytest tests/test_data_model.py
-pytest tests/test_llm.py
-pytest tests/test_intent_extraction.py
-pytest tests/test_prompts.py
-pytest tests/test_ollama.py
-pytest tests/test_groq.py
-pytest tests/test_llm_agents.py
-pytest tests/test_dummy_pdf_agent.py
-pytest tests/test_pdf_agent.py
-pytest tests/test_dummy_web_agent.py
-pytest tests/test_web_agent.py
-pytest tests/test_dummy_finance_agent.py
-pytest tests/test_finance_agent.py
-pytest tests/test_server.py
-
-# run all tests
-pytest tests
-```
-
-## Run the app.py script to test the LLM without the UI, or test the mock LLM
-
-```bash
-python server/app.py --model llama3.2:3b
-
-python server/app.py --model deepseek-r1-distill-llama-70b
-```
 
 ### Check out the FastAPI Documentation When app is running. feel free to extend it to your liking
 
@@ -360,35 +311,6 @@ http://0.0.0.0:8006/docs
 
 Note: Ensure Ollama is running on your host machine before using the Ollama model.
 
-
-## Chainlit Interface
-
-```bash
-# Find processes using the ports
-lsof -i :8000
-lsof -i :8006
-
-# Kill them using their PID, make sure to use your actual process ID
-kill -9 <PID>
-```
-
-### Groq
-```bash
-# Terminal 1 - Server
-MODEL=groq  uvicorn server.src.server:app --host 0.0.0.0 --port 8006
-
-# Terminal 2 - Chainlit
-MODEL=groq chainlit run client/chainlit/app.py --port 8000
-```
-
-### Ollama
-```bash
-# Terminal 1 - Server
-MODEL=ollama  uvicorn server.src.server:app --host 0.0.0.0 --port 8006
-
-# Terminal 2 - Chainlit
-MODEL=ollama chainlit run client/chainlit/app.py --port 8000
-```
 
 ## Run the server
 
@@ -408,10 +330,10 @@ python app.py test --test-type similarity
 python app.py terminal
 ```
 
-
 ## Run the client
 
 ```bash
+# After client runs you will be given instructions on how to run the web app with chainlit
 python app.py client
 ```
 
