@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from src.web_app import create_web_app
 from src.ollama_llm import create_ollama_llm
 from src.groq_llm import create_groq_llm
-from utils.config import get_ollama_config, get_groq_config
+import os
 import logging
 
 logger = logging.getLogger(__name__)
@@ -27,11 +27,7 @@ def create_server() -> FastAPI:
         allow_headers=["*"],
     )
 
-    # Initialize LLMs based on config
-    ollama_config = get_ollama_config()
-    groq_config = get_groq_config()
-
-    # Create LLM instances
+    # Create LLM instances (they now handle their own config)
     ollama_llm = create_ollama_llm()
     groq_llm = create_groq_llm()
 
@@ -49,8 +45,8 @@ def create_server() -> FastAPI:
         return {
             "status": "healthy",
             "models": {
-                "ollama": ollama_config["model_name"],
-                "groq": groq_config["model_name"]
+                "ollama": os.getenv("OLLAMA_MODEL", "llama3.2:3b"),
+                "groq": os.getenv("GROQ_MODEL_NAME", "deepseek-r1-distill-llama-70b")
             }
         }
 
