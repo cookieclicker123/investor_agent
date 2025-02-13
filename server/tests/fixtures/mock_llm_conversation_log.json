@@ -1,0 +1,32 @@
+{
+  "request": {
+    "query": "What is AI?",
+    "prompt": "",
+    "as_json": true
+  },
+  "response": {
+    "generated_at": "2025-01-29T20:09:33.508350",
+    "intent": [],
+    "request": {
+      "query": "What is AI?",
+      "prompt": "",
+      "as_json": true
+    },
+    "raw_response": {
+      "answer": "AI is the simulation of human intelligence in machines."
+    },
+    "model_name": "mock_llm",
+    "model_provider": "mock",
+    "time_in_seconds": 0.74
+  },
+  "chunks": [
+    "{\n  \"answe",
+    "r\": \"AI is",
+    " the simul",
+    "ation of h",
+    "uman intel",
+    "ligence in",
+    " machines.",
+    "\"\n}"
+  ]
+}
