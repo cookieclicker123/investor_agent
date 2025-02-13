@@ -402,14 +402,23 @@ Note: Ensure Ollama is running on your host machine before using the Ollama mode
 
 ## Chainlit Interface
 
+### Groq
 ```bash
-# For Groq
-MODEL=groq chainlit run chainlit/app.py
+# Terminal 1 - Server
+MODEL=groq  uvicorn src.server:app --host 0.0.0.0 --port 8006
 
-# For Ollama
-MODEL=ollama chainlit run chainlit/app.py
+# Terminal 2 - Chainlit
+MODEL=groq chainlit run chainlit/app.py --port 8000
 ```
 
+### Ollama
+```bash
+# Terminal 1 - Server
+MODEL=ollama  uvicorn src.server:app --host 0.0.0.0 --port 8006
+
+# Terminal 2 - Chainlit
+MODEL=ollama chainlit run chainlit/app.py --port 8000
+```
 
 
 
