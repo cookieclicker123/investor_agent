@@ -3,12 +3,12 @@ import json
 import asyncio
 import argparse
 import logging
-from src.ollama_llm import create_ollama_llm
-from src.groq_llm import create_groq_llm
-from tests.mocks.mock_llm import create_mock_llm_client
-from src.data_model import LLMRequest
+from server.src.ollama_llm import create_ollama_llm
+from server.src.groq_llm import create_groq_llm
+from server.tests.mocks.mock_llm import create_mock_llm_client
+from server.src.data_model import LLMRequest
 import uvicorn
-from src.web_app import create_web_app
+from server.src.web_app import create_web_app
 import threading
 
 # Simple file logging

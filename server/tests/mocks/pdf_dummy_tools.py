@@ -1,5 +1,4 @@
-from typing import List
-from src.data_model import PDFContext, PDFAgentResponse
+from server.src.data_model import PDFContext, PDFAgentResponse
 
 def get_dummy_context(query: str) -> PDFAgentResponse:
     """Return mock PDF context for testing"""

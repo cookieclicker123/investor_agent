@@ -1,10 +1,10 @@
 import pytest
 from datetime import datetime
-from src.data_model import (
+from server.src.data_model import (
     FinanceAgentResponse, StockData, StockPrice, StockFundamentals,
     LLMResponse, LLMRequest, Intent
 )
-from tests.mocks.finance_dummy_agent import create_finance_agent
+from server.tests.mocks.finance_dummy_agent import create_finance_agent
 
 def test_finance_agent_basic_query():
     """Test that finance agent returns expected response format"""

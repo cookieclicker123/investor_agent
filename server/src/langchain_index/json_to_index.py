@@ -62,7 +62,7 @@ def create_faiss_index(text_folder, index_path, embedding_model='sentence-transf
 
 if __name__ == "__main__":
     # The folder where text files are saved
-    text_folder = "./tmp/processed_langchain"
+    text_folder = "./server/tmp/processed_langchain"
     # The path where you want to save the FAISS index
-    index_path = "./tmp/indexes_langchain"
+    index_path = "./server/tmp/indexes_langchain"
     create_faiss_index(text_folder, index_path)

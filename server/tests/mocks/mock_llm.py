@@ -3,9 +3,9 @@ import time
 from typing import Dict, Any
 import json
 import asyncio
-from src.data_model import LLMRequest, LLMResponse, OnTextFn, llmFn, Intent
-from src.intent_extraction import create_intent_detector
-from src.prompts.prompts_for_test import (
+from server.src.data_model import LLMRequest, LLMResponse, OnTextFn, llmFn, Intent
+from server.src.intent_extraction import create_intent_detector
+from server.src.prompts.prompts_for_test import (
     META_AGENT_PROMPT,
     WEB_AGENT_PROMPT,
     PDF_AGENT_PROMPT,

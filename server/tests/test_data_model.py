@@ -1,6 +1,6 @@
 import pytest
 from datetime import datetime
-from src.data_model import LLMRequest, LLMResponse, Intent, IntentResult
+from server.src.data_model import LLMRequest, LLMResponse, Intent, IntentResult
 
 def test_llm_response_valid_formats():
     base_request = LLMRequest(query="test", prompt="test prompt")

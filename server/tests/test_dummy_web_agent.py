@@ -1,7 +1,7 @@
 import pytest
 from datetime import datetime
-from src.data_model import WebAgentResponse, SearchResult, LLMResponse, LLMRequest, Intent
-from tests.mocks.web_dummy_agent import create_web_agent
+from server.src.data_model import WebAgentResponse, SearchResult, LLMResponse, LLMRequest, Intent
+from server.tests.mocks.web_dummy_agent import create_web_agent
 
 @pytest.mark.asyncio
 async def test_web_agent_basic_query():

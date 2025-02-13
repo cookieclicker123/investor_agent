@@ -1,9 +1,8 @@
 import pytest
 from unittest.mock import patch
 import logging
-from src.data_model import LLMRequest, Intent
-from src.ollama_llm import create_ollama_llm
-from src.intent_extraction import create_intent_detector
+from server.src.data_model import LLMRequest, Intent
+from server.src.ollama_llm import create_ollama_llm
 
 logger = logging.getLogger(__name__)
 

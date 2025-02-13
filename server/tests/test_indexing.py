@@ -2,13 +2,10 @@ import pytest
 import os
 import json
 import tempfile
-import shutil
 from pathlib import Path
-from src.index.document_processor import RecursiveTextSplitter, process_document
-from src.index.json_to_index import create_faiss_index, load_index, similarity_search
+from server.src.index.document_processor import RecursiveTextSplitter, process_document
+from server.src.index.json_to_index import create_faiss_index, load_index, similarity_search
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.vectorstores import FAISS as LangchainFAISS
-from langchain_huggingface import HuggingFaceEmbeddings
 from sentence_transformers import SentenceTransformer
 
 @pytest.fixture

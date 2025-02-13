@@ -47,8 +47,8 @@ def convert_pdfs_to_text(pdf_folder, text_folder):
 
 if __name__ == "__main__":
     # Specify the folder with your PDFs
-    pdf_folder = "./src/data/documents"
+    pdf_folder = "./server/src/data/documents"
     # Specify the folder where you want to save .txt files
-    text_folder = "./tmp/processed_langchain"
+    text_folder = "./server/tmp/processed_langchain"
     convert_pdfs_to_text(pdf_folder, text_folder)
       

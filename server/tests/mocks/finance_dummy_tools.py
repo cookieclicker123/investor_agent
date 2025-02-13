@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import List
-from src.data_model import FinanceAgentResponse, StockData, StockPrice, StockFundamentals
+from server.src.data_model import FinanceAgentResponse, StockData, StockPrice, StockFundamentals
 
 def dummy_finance_search(query: str) -> FinanceAgentResponse:
     """

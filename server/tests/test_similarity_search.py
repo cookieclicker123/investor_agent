@@ -1,5 +1,5 @@
 from sentence_transformers import SentenceTransformer
-from src.index.json_to_index import load_index, similarity_search
+from server.src.index.json_to_index import load_index, similarity_search
 from langchain_community.vectorstores import FAISS as LangchainFAISS
 from langchain_huggingface import HuggingFaceEmbeddings
 
@@ -24,8 +24,8 @@ def print_search_results(query: str, results, source: str):
 
 def compare_search_results():
     # Load both indexes
-    custom_index_path = "./tmp/indexes"
-    langchain_index_path = "./tmp/indexes_langchain"
+    custom_index_path = "server/tmp/indexes"
+    langchain_index_path = "server/tmp/indexes_langchain"
     
     # Use same model name for both implementations
     model_name = 'sentence-transformers/all-MiniLM-L6-v2'

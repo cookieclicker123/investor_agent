@@ -1,7 +1,7 @@
 import pytest
-from src.data_model import LLMRequest, Intent
-from src.groq_llm import create_groq_llm
-from src.intent_extraction import create_intent_detector
+from server.src.data_model import LLMRequest, Intent
+from server.src.groq_llm import create_groq_llm    
+from server.src.intent_extraction import create_intent_detector
 
 @pytest.mark.asyncio
 async def test_groq_basic_response():
