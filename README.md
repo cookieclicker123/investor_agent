@@ -27,6 +27,51 @@ Everyone can speak English, and that's all you should need to retrieve the infor
 
 This project will use **cutting edge LLMs** and **bespoke agent orchestration** methods to create a financial advisor that works for you, no judgement, 24/7.
 
+graph TD
+    User[User Query] --> MetaAgent[Meta Agent]
+    
+    subgraph AgentSelection[Agent Selection & Workflow]
+        MetaAgent --> Analysis[Query Analysis]
+        Analysis --> Selection[Agent Selection]
+        Selection --> Workpad[Workpad]
+        Memory[Conversation Memory] --> MetaAgent
+    end
+    
+    subgraph AgentProcessing[Agent Processing]
+        Workpad --> PDFAgent[PDF Agent]
+        Workpad --> WebAgent[Web Agent]
+        Workpad --> FinanceAgent[Finance Agent]
+        
+        PDFAgent --> FAISS[FAISS Index]
+        WebAgent --> Serper[Serper API]
+        FinanceAgent --> AlphaVantage[Alpha Vantage API]
+        
+        FAISS --> AgentResponse1[Agent Response]
+        Serper --> AgentResponse2[Agent Response]
+        AlphaVantage --> AgentResponse3[Agent Response]
+    end
+    
+    subgraph ResponseSynthesis[Response Synthesis]
+        AgentResponse1 --> Workpad
+        AgentResponse2 --> Workpad
+        AgentResponse3 --> Workpad
+        
+        Workpad --> SynthesisCheck{Sufficient Info?}
+        SynthesisCheck -->|Yes| FinalSynthesis[Final Synthesis]
+        SynthesisCheck -->|No| MetaAgent
+        
+        FinalSynthesis --> Response[Final Response]
+        Memory --> FinalSynthesis
+    end
+    
+    Response --> User
+    Response --> Memory
+    
+    style SynthesisCheck fill:#ff9900,stroke:#333,stroke-width:2px
+    style Workpad fill:#90EE90,stroke:#333,stroke-width:2px
+    style MetaAgent fill:#ADD8E6,stroke:#333,stroke-width:2px
+    style Memory fill:#FFB6C1,stroke:#333,stroke-width:2px
+
 
 ## Design principles
 
