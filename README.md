@@ -1,11 +1,12 @@
-![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi)
-![FAISS](https://img.shields.io/badge/FAISS-B31B1B?style=for-the-badge)
-![Pydantic](https://img.shields.io/badge/Pydantic-E92063?style=for-the-badge&logo=pydantic)
-![Chainlit](https://img.shields.io/badge/Chainlit-1D1D1D?style=for-the-badge)
-![Transformers](https://img.shields.io/badge/Transformers-FFB000?style=for-the-badge)
-![Ollama](https://img.shields.io/badge/Ollama-000000?style=for-the-badge)
-![Groq](https://img.shields.io/badge/Groq-7B68EE?style=for-the-badge)
-![Python3.11](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
+[![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com)
+[![FAISS](https://img.shields.io/badge/FAISS-B31B1B?style=flat-square)](https://github.com/facebookresearch/faiss)
+[![Pydantic](https://img.shields.io/badge/Pydantic-E92063?style=flat-square&logo=pydantic)](https://docs.pydantic.dev)
+[![Chainlit](https://img.shields.io/badge/Chainlit-1D1D1D?style=flat-square)](https://docs.chainlit.io)
+[![Transformers](https://img.shields.io/badge/Transformers-FFB000?style=flat-square)](https://huggingface.co/docs/transformers/index)
+[![Ollama](https://img.shields.io/badge/Ollama-000000?style=flat-square)](https://ollama.ai)
+[![Groq](https://img.shields.io/badge/Groq-7B68EE?style=flat-square)](https://groq.com)
+[![Python](https://img.shields.io/badge/python-3.11-blue.svg?style=flat-square&logo=python&logoColor=white)](https://www.python.org)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 
 # Investor Agent
 
