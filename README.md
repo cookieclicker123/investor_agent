@@ -347,20 +347,6 @@ python app.py terminal
 python app.py client
 ```
 
-## Create the PDF Index
-
-## Run Tests
-
-## Test Similarity Search
-
-## Run the Application
-
-### Terminal Mode
-
-### Web Interface
-
-### API Documentation
-
 
 
 
