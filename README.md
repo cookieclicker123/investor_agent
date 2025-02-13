@@ -10,14 +10,19 @@
 ## Table of Contents
 
 1. [Project Vision: Goals + Purpose](#project-vision-goals--purpose)
-2. [Design Principles](#design-principles)
-3. [Rough Repo Structure](#repo-structure)
-4. [Development Roadmap](#development-roadmap)
-5. [Setup](#setup)
-6. [Run pytests to confirm each component works](#run-pytests-to-confirm-each-component-works)
-7. [Build and Run with Docker](#build-and-run-with-docker)
-8. [Chainlit Interface](#chainlit-interface)
-
+2. [Multi Agent Architecture](#multi-agent-architecture)
+3. [Design Principles](#design-principles)
+4. [Rough Repo Structure](#rough-repo-structure)
+5. [Development Roadmap](#development-roadmap)
+6. [Open Source Everything](#open-source-everything)
+7. [Setup](#setup)
+8. [Create the PDF Index](#create-the-pdf-index)
+9. [Run Tests](#run-tests)
+10. [Test Similarity Search](#test-similarity-search)
+11. [Run the Application](#run-the-application)
+    - [Terminal Mode](#terminal-mode)
+    - [Web Interface](#web-interface)
+    - [API Documentation](#api-documentation)
 
 ## Project Vision: Goals + Purpose
 
@@ -341,6 +346,20 @@ python app.py terminal
 # After client runs you will be given instructions on how to run the web app with chainlit
 python app.py client
 ```
+
+## Create the PDF Index
+
+## Run Tests
+
+## Test Similarity Search
+
+## Run the Application
+
+### Terminal Mode
+
+### Web Interface
+
+### API Documentation
 
 
 
