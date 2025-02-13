@@ -2,6 +2,7 @@ import sys
 import os
 from pathlib import Path
 import asyncio
+import httpx
 
 # Add root directory to Python path
 root_dir = Path(__file__).parent.parent
@@ -9,16 +10,17 @@ sys.path.append(str(root_dir))
 
 import chainlit as cl
 import json
-from src.server import app
-from fastapi.testclient import TestClient
 
 # Get model from environment variable with validation
 MODEL = os.getenv("MODEL", "groq").lower()
 if MODEL not in ["groq", "ollama"]:
     raise ValueError(f"Invalid MODEL environment variable. Must be 'groq' or 'ollama', got '{MODEL}'")
 
-# Create client from our configured FastAPI server
-client = TestClient(app)
+# Configure base URL for API
+BASE_URL = "http://localhost:8006"
+
+# Create async HTTP client
+async_client = httpx.AsyncClient(base_url=BASE_URL, timeout=60.0)
 
 @cl.set_starters
 async def starters():
@@ -55,9 +57,13 @@ async def set_question_starters():
 @cl.on_chat_start
 async def start():
     """Initialize chat session"""
-    health = client.get("/health")
-    health_data = health.json()
-    cl.user_session.set("messages", [])
+    try:
+        health = await async_client.get("/health")
+        health_data = health.json()
+        cl.user_session.set("messages", [])
+    except Exception as e:
+        print(f"Error checking health: {e}")
+        raise
 
 @cl.on_message
 async def main(message: cl.Message):
@@ -92,7 +98,7 @@ async def main(message: cl.Message):
 
     try:
         endpoint = f"/{MODEL}/query"
-        with client.stream('POST', endpoint, json={"query": message.content}) as response:
+        async with async_client.stream('POST', endpoint, json={"query": message.content}) as response:
             if response.status_code != 200:
                 loading_task.cancel()
                 await response_msg.update(content=f"Error: {response.status_code}")
@@ -101,14 +107,11 @@ async def main(message: cl.Message):
             complete_response = {}
             first_chunk = True
             
-            for line in response.iter_lines():
+            async for line in response.aiter_lines():
                 if not line:
                     continue
                     
                 try:
-                    if isinstance(line, bytes):
-                        line = line.decode('utf-8')
-                    
                     if line.startswith('data: '):
                         line = line.replace('data: ', '')
                     
